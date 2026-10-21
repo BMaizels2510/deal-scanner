@@ -1,6 +1,7 @@
-name = "deal-scanner"
-main = "src/index.js"
-compatibility_date = "2025-09-01"
+   name = "deal-scanner"
+   main = "src/index.js"
+   compatibility_date = "2025-09-01"
+   account_id = "9352c57517ec15279d50ec3747de1692"
 
 [[d1_databases]]
 binding = "DB"
