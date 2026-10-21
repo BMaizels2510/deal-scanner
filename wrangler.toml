@@ -1,0 +1,42 @@
+name = "deal-scanner"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "deal-scanner"
+database_id = "PASTE_YOUR_DATABASE_ID_HERE"
+
+# Scan eBay every 5 minutes. Daily housekeeping runs on the first scan after 7am; the digest after DIGEST_HOUR (UK time).
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+# What counts as a deal
+MIN_PCT = "8"              # % under market to appear in the report
+INSTANT_PCT = "15"         # % under market for an instant Telegram alert...
+INSTANT_NET = "20"         # ...and at least this many £ under
+NEW_RELEASE_DAYS = "120"   # singles from sets newer than this are flagged "New release"
+
+# Exit maths
+SELL_FEE_PCT = "12.8"      # eBay selling fee if you resell (set 0 if you sell as a private seller)
+SELL_FEE_FIXED = "0.30"
+SELL_POST_RAW = "2.5"
+SELL_POST_SLAB = "4.5"
+SELL_POST_SEALED = "5"
+MANIA_MARKUP_PCT = "5"     # your agreed markup when passing stock to Mania
+GRADING_COST = "25"        # per card, including postage both ways
+
+# Market price: eBay sold median once a card has this many sales in 30 days; Pulse until then
+EBAY_SOLD_MIN = "4"
+
+# Market depth
+LADDER_TTL_H = "6"         # how often a product's live listing ladder is re-checked (hours)
+LADDER_PER_RUN = "8"       # ladder refreshes for shortlisted deals per run
+LADDER_BG_PER_RUN = "2"    # background ladder refreshes per run, most-traded first (builds the sold record)
+
+# Running (about 4,300 eBay calls a day at these settings, under the 5,000 default)
+SEARCHES_PER_RUN = "8"     # set-level eBay searches per 5-minute run
+DIGEST_HOUR = "18"
+FEE_MODE = "included"      # eBay includes the private-seller buyer fee in the shown price
+REPORT_URL = ""            # your worker address, e.g. https://deal-scanner.yourname.workers.dev

@@ -1,0 +1,26 @@
+# Sets up and refreshes the live database: tables + catalogue.
+# Runs when the catalogue or schema changes, or by hand from the Actions tab.
+# Needs repo secrets: CLOUDFLARE_API_TOKEN (D1 edit permission) and CLOUDFLARE_ACCOUNT_ID.
+name: Update database
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/catalogue.json", "schema.sql"]
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run db:init
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

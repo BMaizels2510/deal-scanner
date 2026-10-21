@@ -1,0 +1,17 @@
+{
+  "name": "deal-scanner",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "dev": "wrangler dev --test-scheduled",
+    "seed:build": "node scripts/build-seed.mjs",
+    "db:init:local": "npm run seed:build && wrangler d1 execute deal-scanner --local --file=schema.sql && wrangler d1 execute deal-scanner --local --file=seed.sql",
+    "db:init": "npm run seed:build && wrangler d1 execute deal-scanner --remote --file=schema.sql && wrangler d1 execute deal-scanner --remote --file=seed.sql",
+    "prices:update": "npm run seed:build && wrangler d1 execute deal-scanner --remote --file=seed.sql",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

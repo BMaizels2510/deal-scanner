@@ -1,0 +1,437 @@
+{
+ "all": [
+  {
+   "label": "All observations (baseline)",
+   "n": 991,
+   "avgNext4w": 1.4,
+   "medianNext4w": -0.3,
+   "pctUp": 49,
+   "pctDown10": 14
+  },
+  {
+   "label": "Bullish: up >10% over 4w and up this week",
+   "n": 127,
+   "avgNext4w": 3.3,
+   "medianNext4w": 1.6,
+   "pctUp": 56,
+   "pctDown10": 10
+  },
+  {
+   "label": "Bearish: down >10% over 4w and down this week",
+   "n": 111,
+   "avgNext4w": -2.6,
+   "medianNext4w": -3.8,
+   "pctUp": 38,
+   "pctDown10": 27
+  },
+  {
+   "label": "Spike: up >15% in one week",
+   "n": 17,
+   "avgNext4w": 2,
+   "medianNext4w": 3.4,
+   "pctUp": 59,
+   "pctDown10": 29
+  },
+  {
+   "label": "Crash: down >15% in one week",
+   "n": 11,
+   "avgNext4w": 10.4,
+   "medianNext4w": 6.4,
+   "pctUp": 55,
+   "pctDown10": 0
+  },
+  {
+   "label": "Dip: >10% below 12w average, not falling this week",
+   "n": 39,
+   "avgNext4w": -2.1,
+   "medianNext4w": -4.3,
+   "pctUp": 33,
+   "pctDown10": 13
+  },
+  {
+   "label": "Stretched: >15% above 12w average",
+   "n": 131,
+   "avgNext4w": 2.3,
+   "medianNext4w": 0.2,
+   "pctUp": 53,
+   "pctDown10": 11
+  },
+  {
+   "label": "Neutral: none of the above",
+   "n": 579,
+   "avgNext4w": 1.7,
+   "medianNext4w": 0,
+   "pctUp": 50,
+   "pctDown10": 12
+  }
+ ],
+ "sealed": [
+  {
+   "label": "All observations (baseline)",
+   "n": 444,
+   "avgNext4w": 2,
+   "medianNext4w": 0.9,
+   "pctUp": 55,
+   "pctDown10": 10
+  },
+  {
+   "label": "Bullish: up >10% over 4w and up this week",
+   "n": 57,
+   "avgNext4w": 5.2,
+   "medianNext4w": 2.6,
+   "pctUp": 63,
+   "pctDown10": 5
+  },
+  {
+   "label": "Bearish: down >10% over 4w and down this week",
+   "n": 41,
+   "avgNext4w": -4.2,
+   "medianNext4w": -2.3,
+   "pctUp": 41,
+   "pctDown10": 34
+  },
+  {
+   "label": "Spike: up >15% in one week",
+   "n": 4,
+   "avgNext4w": 4.7,
+   "medianNext4w": 6.4,
+   "pctUp": 75,
+   "pctDown10": 25
+  },
+  {
+   "label": "Crash: down >15% in one week",
+   "n": 0
+  },
+  {
+   "label": "Dip: >10% below 12w average, not falling this week",
+   "n": 9,
+   "avgNext4w": 3.2,
+   "medianNext4w": 1.7,
+   "pctUp": 67,
+   "pctDown10": 0
+  },
+  {
+   "label": "Stretched: >15% above 12w average",
+   "n": 52,
+   "avgNext4w": 4.3,
+   "medianNext4w": 1.1,
+   "pctUp": 56,
+   "pctDown10": 4
+  },
+  {
+   "label": "Neutral: none of the above",
+   "n": 289,
+   "avgNext4w": 1.6,
+   "medianNext4w": 0.7,
+   "pctUp": 55,
+   "pctDown10": 9
+  }
+ ],
+ "raw": [
+  {
+   "label": "All observations (baseline)",
+   "n": 194,
+   "avgNext4w": -0.9,
+   "medianNext4w": -4,
+   "pctUp": 36,
+   "pctDown10": 25
+  },
+  {
+   "label": "Bullish: up >10% over 4w and up this week",
+   "n": 25,
+   "avgNext4w": 1.6,
+   "medianNext4w": 1.2,
+   "pctUp": 52,
+   "pctDown10": 16
+  },
+  {
+   "label": "Bearish: down >10% over 4w and down this week",
+   "n": 37,
+   "avgNext4w": -3.5,
+   "medianNext4w": -8,
+   "pctUp": 22,
+   "pctDown10": 41
+  },
+  {
+   "label": "Spike: up >15% in one week",
+   "n": 7,
+   "avgNext4w": -3.3,
+   "medianNext4w": -3.5,
+   "pctUp": 43,
+   "pctDown10": 29
+  },
+  {
+   "label": "Crash: down >15% in one week",
+   "n": 9,
+   "avgNext4w": 13.8,
+   "medianNext4w": 7.4,
+   "pctUp": 67,
+   "pctDown10": 0
+  },
+  {
+   "label": "Dip: >10% below 12w average, not falling this week",
+   "n": 15,
+   "avgNext4w": -5.5,
+   "medianNext4w": -7.9,
+   "pctUp": 20,
+   "pctDown10": 33
+  },
+  {
+   "label": "Stretched: >15% above 12w average",
+   "n": 27,
+   "avgNext4w": -1.4,
+   "medianNext4w": 1,
+   "pctUp": 52,
+   "pctDown10": 15
+  },
+  {
+   "label": "Neutral: none of the above",
+   "n": 86,
+   "avgNext4w": 0.5,
+   "medianNext4w": -3.4,
+   "pctUp": 37,
+   "pctDown10": 21
+  }
+ ],
+ "slab": [
+  {
+   "label": "All observations (baseline)",
+   "n": 353,
+   "avgNext4w": 1.8,
+   "medianNext4w": -0.8,
+   "pctUp": 48,
+   "pctDown10": 14
+  },
+  {
+   "label": "Bullish: up >10% over 4w and up this week",
+   "n": 45,
+   "avgNext4w": 2,
+   "medianNext4w": -0.4,
+   "pctUp": 49,
+   "pctDown10": 13
+  },
+  {
+   "label": "Bearish: down >10% over 4w and down this week",
+   "n": 33,
+   "avgNext4w": 0.5,
+   "medianNext4w": 0,
+   "pctUp": 52,
+   "pctDown10": 3
+  },
+  {
+   "label": "Spike: up >15% in one week",
+   "n": 6,
+   "avgNext4w": 6.3,
+   "medianNext4w": 12.5,
+   "pctUp": 67,
+   "pctDown10": 33
+  },
+  {
+   "label": "Crash: down >15% in one week",
+   "n": 2,
+   "avgNext4w": -4.9,
+   "medianNext4w": -4.9,
+   "pctUp": 0,
+   "pctDown10": 0
+  },
+  {
+   "label": "Dip: >10% below 12w average, not falling this week",
+   "n": 15,
+   "avgNext4w": -1.9,
+   "medianNext4w": -4.3,
+   "pctUp": 27,
+   "pctDown10": 0
+  },
+  {
+   "label": "Stretched: >15% above 12w average",
+   "n": 52,
+   "avgNext4w": 2.1,
+   "medianNext4w": -0.1,
+   "pctUp": 50,
+   "pctDown10": 17
+  },
+  {
+   "label": "Neutral: none of the above",
+   "n": 204,
+   "avgNext4w": 2.5,
+   "medianNext4w": -0.3,
+   "pctUp": 49,
+   "pctDown10": 12
+  }
+ ],
+ "newReleases": {
+  "products": [
+   "Pitch Black Booster Box",
+   "Chaos Rising PC ETB",
+   "Charizard 4/102 Celebration Classic raw",
+   "Mega Darkrai ex 116 raw",
+   "Mega Greninja ex 116 raw",
+   "Psyduck 226 raw",
+   "Mega Charizard X ex 125 PSA 10"
+  ],
+  "label": "First 16 weeks after release",
+  "n": 70,
+  "avgNext4w": -2.1,
+  "medianNext4w": -6.6,
+  "pctUp": 36,
+  "pctDown10": 39
+ },
+ "drawdowns": [
+  {
+   "product": "Mega Greninja ex 116 raw",
+   "peak": 428,
+   "now": 104,
+   "fromPeak": -76
+  },
+  {
+   "product": "Charizard 4/102 Celebration Classic raw",
+   "peak": 443,
+   "now": 117,
+   "fromPeak": -74
+  },
+  {
+   "product": "Mega Darkrai ex 116 raw",
+   "peak": 430,
+   "now": 124,
+   "fromPeak": -71
+  },
+  {
+   "product": "Chaos Rising PC ETB",
+   "peak": 150,
+   "now": 77,
+   "fromPeak": -49
+  },
+  {
+   "product": "Destined Rivals ETB",
+   "peak": 165,
+   "now": 88,
+   "fromPeak": -47
+  },
+  {
+   "product": "Mega Charizard X ex 125 PSA 10",
+   "peak": 2182,
+   "now": 1188,
+   "fromPeak": -46
+  },
+  {
+   "product": "Team Rocket's Mewtwo ex 231 PSA 10",
+   "peak": 1331,
+   "now": 713,
+   "fromPeak": -46
+  },
+  {
+   "product": "Lucario VSTAR SWSH291 PSA 10",
+   "peak": 160,
+   "now": 97,
+   "fromPeak": -39
+  },
+  {
+   "product": "Charizard VMAX 020 PSA 10",
+   "peak": 133,
+   "now": 84,
+   "fromPeak": -37
+  },
+  {
+   "product": "Psyduck 226 raw",
+   "peak": 66,
+   "now": 43,
+   "fromPeak": -35
+  },
+  {
+   "product": "Prismatic Evolutions ETB",
+   "peak": 179,
+   "now": 122,
+   "fromPeak": -32
+  },
+  {
+   "product": "Charizard ex 199 PSA 10",
+   "peak": 1715,
+   "now": 1194,
+   "fromPeak": -30
+  },
+  {
+   "product": "Prismatic Evolutions PC ETB",
+   "peak": 432,
+   "now": 317,
+   "fromPeak": -27
+  },
+  {
+   "product": "Umbreon VMAX 215 raw",
+   "peak": 1697,
+   "now": 1245,
+   "fromPeak": -27
+  },
+  {
+   "product": "Umbreon ex 161 PSA 10",
+   "peak": 5222,
+   "now": 4083,
+   "fromPeak": -22
+  },
+  {
+   "product": "Pitch Black Booster Box",
+   "peak": 209,
+   "now": 170,
+   "fromPeak": -19
+  },
+  {
+   "product": "151 Booster Bundle",
+   "peak": 145,
+   "now": 120,
+   "fromPeak": -17
+  },
+  {
+   "product": "151 ETB",
+   "peak": 488,
+   "now": 406,
+   "fromPeak": -17
+  },
+  {
+   "product": "Pikachu Grey Felt Hat PSA 10",
+   "peak": 2271,
+   "now": 1881,
+   "fromPeak": -17
+  },
+  {
+   "product": "Ancient Mew promo raw",
+   "peak": 90,
+   "now": 76,
+   "fromPeak": -16
+  },
+  {
+   "product": "Evolving Skies Booster Box",
+   "peak": 2319,
+   "now": 2006,
+   "fromPeak": -13
+  },
+  {
+   "product": "Umbreon ex 161 raw",
+   "peak": 1116,
+   "now": 966,
+   "fromPeak": -13
+  },
+  {
+   "product": "Ascended Heroes ETB",
+   "peak": 151,
+   "now": 135,
+   "fromPeak": -11
+  },
+  {
+   "product": "Hidden Fates MZA GX PSA 10",
+   "peak": 119,
+   "now": 110,
+   "fromPeak": -7
+  },
+  {
+   "product": "Surging Sparks Booster Box",
+   "peak": 271,
+   "now": 263,
+   "fromPeak": -3
+  },
+  {
+   "product": "Journey Together ETB",
+   "peak": 102,
+   "now": 102,
+   "fromPeak": 0
+  }
+ ]
+}
