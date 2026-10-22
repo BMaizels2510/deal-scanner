@@ -40,4 +40,4 @@ LADDER_BG_PER_RUN = "2"    # background ladder refreshes per run, most-traded fi
 SEARCHES_PER_RUN = "8"     # set-level eBay searches per 5-minute run
 DIGEST_HOUR = "18"
 FEE_MODE = "included"      # eBay includes the private-seller buyer fee in the shown price
-REPORT_URL = ""            # your worker address, e.g. https://deal-scanner.yourname.workers.dev
+REPORT_URL = "https://deal-scanner.brandonmaizels25.workers.dev"
