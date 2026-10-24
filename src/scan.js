@@ -1,5 +1,5 @@
 // One scan run: search a batch of sets on eBay, identify listings, price and score them, alert, and record history.
-import { getToken, searchListings, getItem, shippingCost, bigImage, certNumber } from "./ebay.js";
+import { getToken, searchListings, getItem, shippingCost, itemPrice, bigImage, certNumber } from "./ebay.js";
 import { buildIndex, matchListing } from "./match.js";
 import { config, calcDeal, exitRoutes, gradingPlay, scoreDeal, sentiment, indexOf, ladderStats, soldTrend, holdEstimate, chooseMarket } from "./score.js";
 import { laddersFor, backgroundLadders, loadSold } from "./ladder.js";
@@ -117,11 +117,12 @@ export async function runScan(env, { all = false } = {}) {
 
     const setIds = JSON.parse(s.set_ids);
     for (const { i, key } of fresh) {
+      const price = itemPrice(i);
+      if (price == null) { log.rejected.push({ search: s.id, title: i.title, reason: "No single price (multi-variation listing)" }); continue; }
       const m = matchListing(i.title, setIds, index);
       if (!m.ok) { log.rejected.push({ search: s.id, title: i.title, reason: m.reason }); continue; }
       log.matched++;
       supply[m.product.id] = (supply[m.product.id] || 0) + 1;
-      const price = Number(i.price.value);
       const post = shippingCost(i);
       const pre = calcDeal({ price, post, market: m.product.market, accountType: "BUSINESS", feeMode: cfg.feeMode });
       if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, price, post, pre });

@@ -1,6 +1,6 @@
 // The live ladder for a product: every current UK listing of that exact card + grade (or sealed item).
 // Comparing ladders between checks gives our own sold record: listings that vanish are recorded as likely sales.
-import { searchProduct, shippingCost } from "./ebay.js";
+import { searchProduct, shippingCost, itemPrice } from "./ebay.js";
 import { matchListing } from "./match.js";
 
 const num = (v, d) => (v == null || v === "" ? d : Number(v));
@@ -11,8 +11,9 @@ async function fetchLadder(env, token, p, index) {
   const out = [];
   for (const i of items) {
     const m = matchListing(i.title, [p.set_id], index);
-    if (!m.ok || m.product.id !== p.id) continue;
-    out.push({ id: i.itemId, total: Math.round((Number(i.price.value) + (shippingCost(i) || 0)) * 100) / 100 });
+    const price = itemPrice(i);
+    if (price == null || !m.ok || m.product.id !== p.id) continue;
+    out.push({ id: i.itemId, total: Math.round((price + (shippingCost(i) || 0)) * 100) / 100 });
   }
   return out;
 }

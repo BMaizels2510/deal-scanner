@@ -79,6 +79,13 @@ export async function getItem(env, token, itemId) {
   return item;
 }
 
+// Listing price in GBP, or null when eBay doesn't give one (e.g. multi-variation listings).
+export function itemPrice(x) {
+  const v = x?.price?.value ?? x?.currentBidPrice?.value;
+  const n = Number(v);
+  return v == null || !Number.isFinite(n) ? null : n;
+}
+
 export function shippingCost(x) {
   const v = x?.shippingOptions?.[0]?.shippingCost?.value;
   return v == null ? null : Number(v);
