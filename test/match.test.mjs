@@ -233,3 +233,21 @@ test("sealed: empty boxes and 'no packs included' are never deals", () => {
   assert.match(rsd("Box and sleeves only, booster packs have been removed", "Journey Together Elite Trainer Box", { title: "Journey Together ETB sealed" }).wrongItem, /removed/);
   assert.equal(rsd("Brand new sealed, nothing removed", "Journey Together Elite Trainer Box", { title: "Journey Together ETB" }).wrongItem, null);
 });
+
+test("promo cards from ETBs and graded slabs never match the ETB", () => {
+  const s = ["sv8pt5"];
+  is(s, "Pokémon TCG Eevee 173 Promo Card Prismatic Evolutions ETB Pokemon Centre Sealed", "card:svp|SVP173|null|Pokémon Center|null|null");
+  no(s, "Eevee 173 Prismatic Evolutions Pokemon Center Stamp ETB Promo PSA 9", /PSA 9 not watched/);
+  is(s, "Prismatic Evolutions Pokemon Center Elite Trainer Box Sealed with Eevee promo", "sealed:sv8pt5|Prismatic Evolutions Pokemon Center Elite Trainer Box");
+  is(s, "Prismatic Evolutions Pokemon Center ETB Sealed", "sealed:sv8pt5|Prismatic Evolutions Pokemon Center Elite Trainer Box");
+});
+test("unsealed boxes are priced as loose packs", () => {
+  const h = m(["sv8"], "Pokemon TCG Scarlet & Violet Surging Sparks Half Booster Box No Factory Seal");
+  assert.equal(h.product.id, "sealed:sv8|Surging Sparks Booster Pack"); assert.equal(h.qty, 18);
+  assert.equal(m(["sv8"], "Surging Sparks Booster Box 36 packs no shrink").qty, 36);
+  assert.equal(m(["sv8"], "Surging Sparks booster box without factory seal").qty, 36);
+  assert.equal(m(["sv8"], "Surging Sparks booster box loose packs").qty, 36);
+  assert.equal(m(["sv8"], "Surging Sparks 18 loose booster packs").qty, 18);
+  is(["sv8"], "Surging Sparks Booster Box Sealed", "sealed:sv8|Surging Sparks Booster Box");
+  no(["sv8"], "Surging Sparks booster pack sealed", /modern packs not watched|not in catalogue/);
+});

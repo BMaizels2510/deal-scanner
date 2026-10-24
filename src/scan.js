@@ -128,8 +128,9 @@ export async function runScan(env, { all = false } = {}) {
       const post = shippingCost(i);
       // Optimistic first pass: a raw card with no stated condition is treated as NM until the full listing is read.
       const condF = m.product.kind === "raw" && m.cond ? conditionFactor(m.product, m.cond, cfg).factor : 1;
-      const pre = calcDeal({ price, post, market: m.product.market * condF, accountType: "BUSINESS", feeMode: cfg.feeMode });
-      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, cond: m.cond || null, price, post, pre });
+      const qty = m.qty || 1;   // an unsealed box is priced as qty loose packs
+      const pre = calcDeal({ price, post, market: m.product.market * condF * qty, accountType: "BUSINESS", feeMode: cfg.feeMode });
+      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, cond: m.cond || null, qty, note: m.note || null, price, post, pre });
     }
   }
 
@@ -161,7 +162,7 @@ export async function runScan(env, { all = false } = {}) {
     const detail = await getItem(env, token, c.i.itemId);
     if (detail?.gone) continue;
     const descText = [detail?.conditionDescription, detail?.shortDescription, detail?.description].filter(Boolean).join("\n");
-    const sealedNote = c.p.kind === "sealed" ? readSealedDescription(descText, c.p.name, { title: c.i.title, itemCondition: detail?.condition || c.i.condition }) : null;
+    const sealedNote = c.p.kind === "sealed" && !(c.qty > 1) ? readSealedDescription(descText, c.p.name, { title: c.i.title, itemCondition: detail?.condition || c.i.condition }) : null;
     if (sealedNote?.wrongItem) { log.rejected.push({ search: c.search, title: c.i.title, reason: sealedNote.wrongItem }); continue; }
     const accountType = detail?.seller?.sellerAccountType || "UNKNOWN";
     const post = shippingCost(detail) ?? c.post;
@@ -176,7 +177,8 @@ export async function runScan(env, { all = false } = {}) {
     const condCode = isRaw ? (read || cfg.condUnknown) : null;
     const condition = isRaw ? { code: condCode, src: condSrc, stated, desc, ...conditionFactor(c.p, condCode, cfg), label: COND_LABEL[condCode] || condCode } : null;
     const ref0 = chooseMarket(c.p.market, sold, num(env.EBAY_SOLD_MIN, 4));
-    const ref = condition && condition.factor !== 1 ? { ...ref0, market: ref0.market * condition.factor, nm: ref0.market } : ref0;
+    let ref = condition && condition.factor !== 1 ? { ...ref0, market: ref0.market * condition.factor, nm: ref0.market } : ref0;
+    if (c.qty > 1) ref = { ...ref, market: ref.market * c.qty, each: ref.market };
     const calc = calcDeal({ price: c.price, post, market: ref.market, accountType, feeMode: cfg.feeMode });
     if (calc.pct < cfg.minPct) continue;
 
@@ -194,7 +196,7 @@ export async function runScan(env, { all = false } = {}) {
 
     const routes = exitRoutes(c.p.kind, ref.market, calc.total, cfg);
     const grading = isRaw && condCode === "NM" ? gradingPlay(c.p, psa10, calc.total, cfg) : null;
-    const ladder = ladderStats(ladders[c.p.id] || null, ref.market, c.i.itemId, condCode);
+    const ladder = c.qty > 1 ? null : ladderStats(ladders[c.p.id] || null, ref.market, c.i.itemId, condCode);
     const hold = holdEstimate(c.p, ladder, sold);
     const sc = scoreDeal({ p: c.p, m: { ...c.p, market: ref.market }, pct: calc.pct, cfg, index: catIndex[c.p.category], own: own[c.p.id], priceSuspect, certStatus, ladder, sold, hold, total: calc.total, ref, condition, now });
     // Loose vintage packs: weigh the seller's stated weight against the community pack-weight database.
@@ -214,6 +216,7 @@ export async function runScan(env, { all = false } = {}) {
       else add(0, "w", "No pack weight given: ask the seller");
       if (claims.unsearched) sc.factors.push(["g", "Described as unsearched"]);
     }
+    if (c.qty > 1) sc.factors.unshift(["w", `${c.note} × £${ref.each.toFixed(2)} each (Pulse)`]);
     if (sealedNote?.damage.length) { sc.conf = Math.max(0, sc.conf - 10); sc.factors.push(["b", `Box damage mentioned: "${sealedNote.damage[0]}"`]); }
     if (grading?.suspect) sc.factors.push(["w", "PSA 10 price looks wrong: grading value skipped"]);
     else if (grading?.worth) sc.factors.push(["g", `Grading play: ${Math.round(grading.p10 * 100)}% PSA 10 rate`]);
@@ -238,7 +241,7 @@ export async function runScan(env, { all = false } = {}) {
     d.instant = !blocked && calc.pct >= cfg.instantPct && calc.net >= cfg.instantNet ? 1 : 0;
     let alerted = 0;
     if (d.instant) alerted = (await sendDealAlert(env, { ...d, name: c.p.name, grade: c.p.grader ? `${c.p.grader} ${c.p.grade}` : null,
-      set_name: sets[c.p.set_id]?.name || null, number: c.p.number, condition, nm_market: ref.nm ?? null, pack,
+      set_name: sets[c.p.set_id]?.name || null, number: c.p.number, condition, nm_market: ref.nm ?? null, pack, qty: c.qty, qty_note: c.note, each: ref.each,
       ladder_summary: ladder && ladder.active ? `${ladder.active} other ${condition ? condition.code + " " : ""}listings, ${ladder.belowMarket} under market` : null })) ? 1 : 0;
 
     const cols = Object.keys(d);
@@ -334,12 +337,18 @@ export async function sendDigest(env, day) {
   const idx = categoryIndex(products);
   const names = { sir: "Modern SIR", promo: "Promos", alt: "Alt Art", ex_era: "EX era", wotc: "WOTC", sealed: "Sealed" };
   const market = Object.entries(idx).map(([c, v]) => `${names[c] || c} ${v.t30 >= 0 ? "+" : ""}${Math.round(v.t30)}%`).join(" · ");
-  const text = [
+  let text = [
     "<b>End-of-day report</b>",
     results.length ? `${results.length} deals flagged, £${Math.round(total).toLocaleString("en-GB")} under market in total.\n\n${top}` : "No under-market listings today.",
     hot ? `\n<b>Cards to watch</b> (selling fast)\n${hot}` : "",
     `\n<b>Market, 30-day median</b>\n${market}`,
   ].join("\n");
-  const link = env.REPORT_URL ? { text: "Open report", url: `${env.REPORT_URL}/?day=${day}&key=${encodeURIComponent(env.REPORT_KEY || "")}` } : null;
+  // The daily review: how many of today's deals still need a verdict, and the running accuracy.
+  const rv = await db.prepare(
+    `SELECT SUM(CASE WHEN d.day = ? AND r.item_id IS NULL AND d.status != 'bad' THEN 1 ELSE 0 END) AS todo,
+            SUM(CASE WHEN r.verdict = 'good' THEN 1 ELSE 0 END) AS good, COUNT(r.item_id) AS reviewed
+     FROM deals d LEFT JOIN reviews r ON r.item_id = d.item_id`).bind(day).first().catch(() => null);
+  if (rv) text += `\n\n<b>Review</b>: ${rv.todo || 0} of today's deals to check` + (rv.reviewed ? ` · match accuracy so far ${Math.round((rv.good / rv.reviewed) * 100)}% (${rv.reviewed} reviewed)` : "");
+  const link = env.REPORT_URL ? { text: "Open report & review", url: `${env.REPORT_URL}/?day=${day}&key=${encodeURIComponent(env.REPORT_KEY || "")}` } : null;
   return sendText(env, text, link);
 }

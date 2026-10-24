@@ -101,6 +101,8 @@ function wordRe(n) {
   return new RegExp(`(?<![a-z0-9/])(?:#\\s*|no\\.?\\s*)?${body}(?![0-9])(?!\\s*\\/)`);
 }
 
+const PROMO_SETS = ["svp", "swshp", "smp", "xyp", "mep", "basep"];
+
 export function buildIndex(products, sets) {
   const bySet = {};
   for (const p of products) {
@@ -137,7 +139,7 @@ function numberMatches(spec, parsed, t) {
     if (parsed.fracs.some(f => f.n === spec.n && f.d !== spec.d)) return false;
     return wordRe(spec.n).test(t);
   }
-  if (spec.type === "code") return parsed.codes.includes(spec.n);
+  if (spec.type === "code") return parsed.codes.includes(spec.n) || (/\bpromo\b/.test(t) && wordRe(spec.n.replace(/^[a-z]+/, "")).test(t));
   return wordRe(spec.n).test(t) && /\b(promo|black star)\b/.test(t);
 }
 
@@ -162,12 +164,23 @@ function variantProblem(t, p) {
 }
 
 // Pack counts that define a product: a full booster box is 36 packs, a half box 18, a booster bundle 6.
-const PACKS_IN_TITLE = /\b(\d{1,2})\s*(?:x\s*)?(?:sealed\s*)?(?:booster\s*)?packs?\b/;
+const PACKS_IN_TITLE = /\b(\d{1,2})\s*(?:x\s*)?(?:loose\s*)?(?:sealed\s*)?(?:booster\s*)?packs?\b/;
 const PARTIAL = /\b(partial|contents only|no promos?|without (the )?promos?|missing|incomplete)\b/;
 const HALF = /\bhalf\b|\bmini (booster )?box\b/;
 
+// A booster box / half box without its factory seal is only worth its packs: price it as N loose packs.
+const UNSEALED_BOX = /\bloose\b|\bno (factory )?seal\b|\bnot (factory )?sealed\b|\bunsealed\b|\bseal (removed|broken|opened|cut)\b|\bno shrink\b|\bwithout (factory )?(seal|shrink)\b|\bopened box\b|\bbox (has been |was )?opened\b/;
+
 function matchSealed(t0, candidates) {
   const t = t0.replace(NOT_OPENED, " ");
+  const boxWords = /booster box|booster display|\bhalf (booster )?box\b/.test(t) || /\b\d{1,2}\s*(x\s*)?loose (booster )?packs\b/.test(t);
+  if (boxWords && UNSEALED_BOX.test(t) && !/\b(empty|resealed|re-sealed|searched)\b/.test(t)) {
+    const pm0 = t.match(PACKS_IN_TITLE);
+    const qty = pm0 ? Number(pm0[1]) : HALF.test(t) ? 18 : 36;
+    const pack = candidates.find(p => /booster pack/i.test(p.name) && !/sleeved|1st edition/i.test(p.name) && p._setTokens.every(w => t.includes(w)));
+    if (!pack) return { ok: false, reason: "unsealed box, no single-pack price to value it by" };
+    return { ok: true, product: pack, qty, note: `Unsealed ${HALF.test(t) ? "half " : ""}box: priced as ${qty} loose packs` };
+  }
   if (OPENED.test(t)) return { ok: false, reason: "opened/resealed/empty" };
   if (PARTIAL.test(t)) return { ok: false, reason: "partial / contents only" };
   const pm = t.match(PACKS_IN_TITLE);
@@ -191,6 +204,7 @@ function matchSealed(t0, candidates) {
     if (IS_1ST.test(n) !== t1st) { packReason = t1st ? "1st Edition, not watched" : "not 1st Edition"; return false; }
     if (/\bshadowless\b/.test(t) && !n.includes("shadowless")) { packReason = "shadowless variant not watched"; return false; }
     if (n.includes("booster pack")) {
+      if (!p._vintage) { packReason ||= "single modern packs not watched"; return false; }
       if (!tPack) { packReason = /\bpacks\b/.test(t) ? "several packs, not a single pack" : "not a single booster pack"; return false; }
       return true;   // weighed / loose is normal for single packs
     }
@@ -229,8 +243,11 @@ export function matchListing(rawTitle, setIds, index) {
   const sealedPool = pool.filter(p => p.kind === "sealed");
   const cardPool = pool.filter(p => p.kind !== "sealed");
 
+  const gradedTitle = GRADED_WORD.test(t) || GRADE_TOKENS.test(t); GRADE_TOKENS.lastIndex = 0;
+  const promoCard = /\bpromo\b/.test(t) && (/\bcard\b|\bstamp(ed)?\b|\b(svp|swsh|sm|xy|mep)\s*-?\s*\d/.test(t) ||
+    /(?<![\d/])\b\d{1,3}\b(?!\s*(booster\s*)?packs?)(?!\s*\/)/.test(t.replace(/\b(19|20)\d{2}\b/g, " ")));
   const packTitle = /\bbooster packs?\b|\bpacks?\b(?! fresh)/.test(t) && !/\d{1,3}\s*\/\s*\d{1,3}/.test(t);
-  if (SEALED_WORDS.test(t) || (packTitle && sealedPool.some(p => /booster pack/i.test(p.name)))) {
+  if (!gradedTitle && !promoCard && (SEALED_WORDS.test(t) || (packTitle && sealedPool.some(p => /booster pack/i.test(p.name))))) {
     if (DAMAGE.test(t)) return { ok: false, reason: "damaged" };
     if (!sealedPool.length) return { ok: false, reason: "sealed, not watched in this set" };
     return matchSealed(t, sealedPool);
@@ -244,7 +261,9 @@ export function matchListing(rawTitle, setIds, index) {
   if (grade && CRACKED.test(t)) return { ok: false, reason: "cracked slab" };
   if (grade && DAMAGE.test(t)) return { ok: false, reason: "damaged slab" };
 
-  let cards = cardPool.filter(p => numberMatches(p._num, parsed, t) && p._tokens.some(w => t.includes(w)));
+  // "Eevee 173 promo ... ETB": the promo card that comes in the box, so look in the promo sets too.
+  const promoPool = /\bpromo\b/.test(t) ? PROMO_SETS.flatMap(id => setIds.includes(id) ? [] : (index[id] || [])).filter(p => p.kind !== "sealed") : [];
+  let cards = [...cardPool, ...promoPool].filter(p => numberMatches(p._num, parsed, t) && p._tokens.some(w => t.includes(w)));
   if (!cards.length) return { ok: false, reason: "card not in catalogue" };
 
   const variantReasons = [];

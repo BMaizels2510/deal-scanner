@@ -77,8 +77,10 @@ for (const [phrase, setIds] of Object.entries(bySearch)) {
   const sirOnly = cards.length && cards.every(p => p.r[col.cat] === "sir");
   addSearch(setIds.join("+"), `pokemon ${phrase}${sirOnly ? " (sir, illustration)" : ""}`, setIds, cards);
   const sq = setIds.map(id => cat.sets[id].sq).find(Boolean) || phrase;   // sealed phrase, e.g. "fossil" rather than "fossil holo"
-  const packs = sealed.some(p => /booster pack/i.test(p.r[col.name]));
-  addSearch(setIds.join("+") + ":sealed", `pokemon ${sq} (booster, ${packs ? "pack, " : ""}etb, elite, bundle)`, setIds, sealed);
+  // Modern single packs are only reference prices (for unsealed boxes): no search of their own, and they don't set the price floor.
+  const modernPack = p => /booster pack/i.test(p.r[col.name]) && !cat.sets[p.set_id]?.vintage;
+  const packs = sealed.some(p => /booster pack/i.test(p.r[col.name]) && !modernPack(p));
+  addSearch(setIds.join("+") + ":sealed", `pokemon ${sq} (booster, ${packs ? "pack, " : ""}etb, elite, bundle)`, setIds, sealed.filter(p => !modernPack(p)));
 }
 
 writeFileSync(new URL("../seed.sql", import.meta.url), out.join("\n") + "\n");

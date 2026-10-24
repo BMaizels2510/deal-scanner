@@ -147,3 +147,12 @@ CREATE TABLE IF NOT EXISTS cond_prices (
   hp REAL,
   updated_at TEXT
 );
+
+-- Your verdict on each flagged deal: was the match right, wrong (and why), or a fake card. Feeds the accuracy report.
+CREATE TABLE IF NOT EXISTS reviews (
+  item_id TEXT PRIMARY KEY,
+  verdict TEXT NOT NULL,          -- good | bad | fake
+  reason TEXT,                    -- for bad: why (see REVIEW_REASONS in src/review.js)
+  note TEXT,
+  at TEXT NOT NULL
+);

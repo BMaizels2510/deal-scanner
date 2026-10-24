@@ -1,5 +1,5 @@
 {
-  "_note": "Built from Pulse (pulsetcg.io) screens on 21 Oct 2026. Raw cards carry Pulse LP / MP / HP prices (lp, mp, hp). Ask Claude to refresh it (see README), then run: npm run prices:update. Release dates for recent sets are approximate (first priced on Pulse).",
+  "_note": "Built from Pulse (pulsetcg.io) screens on 21 Oct 2026. Raw cards carry Pulse LP / MP / HP prices (lp, mp, hp). Ask Claude to refresh it (see README), then run: npm run prices:update. Release dates for recent sets are approximate (first priced on Pulse). Modern single booster packs are reference prices only, used to value unsealed boxes as loose packs.",
   "updated_at": "2026-10-21T14:56:00Z",
   "categories": {
     "sir": {
@@ -652,6 +652,12 @@
     ["sealed:ex2|Sandstorm Booster Pack","Sandstorm Booster Pack",null,420.82,0,0.8,0,1,null,"sealed",null,null,"sandstorm-booster-pack",null,null],
     ["sealed:ex3|EX Dragon Booster Pack","EX Dragon Booster Pack",null,572.8,0,-5,0,1,null,"sealed",null,null,"ex-dragon-booster-pack",null,null],
     ["sealed:ex4|Team Magma vs Team Aqua Booster Pack","Team Magma vs Team Aqua Booster Pack",null,532,0,37.7,0,1,null,"sealed",null,null,"team-magma-vs-team-aqua-booster-pack",null,null],
-    ["sealed:ex5|Hidden Legends Booster Pack","Hidden Legends Booster Pack",null,462.3,0,18.4,0,1,null,"sealed",null,null,"hidden-legends-booster-pack",null,null]
+    ["sealed:ex5|Hidden Legends Booster Pack","Hidden Legends Booster Pack",null,462.3,0,18.4,0,1,null,"sealed",null,null,"hidden-legends-booster-pack",null,null],
+    ["sealed:sv8|Surging Sparks Booster Pack","Surging Sparks Booster Pack",null,9.2,-6.8,16.9,4,16,7.1,"sealed",null,null,"surging-sparks-booster-pack",null,null],
+    ["sealed:me05|Pitch Black Booster Pack","Pitch Black Booster Pack",null,5.27,-12.6,-2.6,7,37,-18.9,"sealed",null,null,"pitch-black-booster-pack",null,null],
+    ["sealed:me04|Chaos Rising Booster Pack","Chaos Rising Booster Pack",null,6.74,2,19.7,8,41,-16.4,"sealed",null,null,"chaos-rising-booster-pack",null,null],
+    ["sealed:me02|Phantasmal Flames Booster Pack","Phantasmal Flames Booster Pack",null,9.99,-1.5,12,3,14,-8.2,"sealed",null,null,"phantasmal-flames-booster-pack",null,null],
+    ["sealed:m1|Mega Evolution Booster Pack","Mega Evolution Booster Pack",null,8.32,-12.5,-1.2,2,13,-34.1,"sealed",null,null,"mega-evolution-booster-pack",null,null],
+    ["sealed:swsh7|Evolving Skies Booster Pack","Evolving Skies Booster Pack",null,29.75,0.4,1.8,5,17,26.1,"sealed",null,null,"evolving-skies-booster-pack",null,null]
   ]
 }

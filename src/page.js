@@ -158,6 +158,24 @@ details ul{padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .rej .t{color:var(--muted);font-family:var(--f-mono);overflow-wrap:anywhere;min-width:0}
 @media (max-width:560px){.rej div{flex-direction:column;gap:2px}.rej .r{flex:none}}
 footer{font-size:12px;color:var(--muted);max-width:80ch}
+.acc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.acc .nums{display:flex;flex-wrap:wrap;gap:18px}
+.acc .nums div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.acc .nums .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.acc .nums .v{font-family:var(--f-display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.acc .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:flex}
+.acc .bar i{display:block;height:100%}
+.acc .why{display:flex;flex-wrap:wrap;gap:6px}
+.review{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
+.review .q{font-size:12.5px;color:var(--muted);margin-right:4px}
+.review .btn[aria-pressed="true"].good{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.review .btn[aria-pressed="true"].bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.review .btn[aria-pressed="true"].fake{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.reasons{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+.reasons button{font-size:12px;padding:5px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer}
+.reasons button[aria-pressed="true"]{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.reasons input{flex:1 1 220px;min-width:0;font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.tag.fixed{background:var(--good-soft);color:var(--good)}
 </style>
 </head>
 <body>
@@ -184,6 +202,12 @@ footer{font-size:12px;color:var(--muted);max-width:80ch}
     <div><span class="k">Avg confidence</span><span class="v" id="s-conf">–</span></div>
   </section>
   <div class="scanline" id="scanline"></div>
+
+  <section class="sect" aria-labelledby="acc-h">
+    <h2 id="acc-h">Match accuracy</h2>
+    <p class="hint">Your verdicts on every flagged deal, all days. Mark each one right, wrong (and why) or fake. Wrong matches become new rules; "fixed" counts wrong ones today's rules would now turn away or price differently.</p>
+    <div class="acc" id="acc"></div>
+  </section>
 
   <section class="sect" aria-labelledby="mkt-h">
     <h2 id="mkt-h">Market by category</h2>
@@ -227,7 +251,7 @@ footer{font-size:12px;color:var(--muted);max-width:80ch}
     </ul>
     <p><b>Time to sell</b> assumes you resell at the Pulse price. It divides the listings already queued at or below that price by how many sell per day (Pulse sales, plus our own sold record once it builds): under a week is a quick flip, over a month a long hold. The ladder shows every other UK listing of the same card and grade against Pulse and this deal. Our sold record comes from listings that drop off the ladder between checks; it can't see Best Offer prices, so treat it as a guide.</p>
     <p><b>Confidence</b> (0–100) weighs those signals differently for sealed, raw and graded, then adds liquidity (sales in 30 days), the category's trend, your own price history once it builds up, and how far under market you're buying. It is a guide, not a prediction.</p>
-    <p>Mark deals as <b>Bought</b> or <b>Bad match</b>. Bad matches are how the title rules get tightened.</p>
+    <p>Mark deals as <b>Bought</b>, and review each one: <b>Right</b>, <b>Wrong</b> (pick why) or <b>Fake card</b>. Wrong matches are how the rules get tightened; download the review CSV from the accuracy panel and send it to Claude.</p>
   </details>
 
   <details id="rejbox">
@@ -279,13 +303,49 @@ function depth(d){
   return html+'</div>';
 }
 
+function reviewBar(d){
+  const v=d.review&&d.review.verdict, open=v==="bad";
+  const id=esc(d.item_id);
+  let h='<div class="review"><span class="q">Was this match right?</span>'+
+    '<button class="btn small good" data-rv="good" data-id="'+id+'" aria-pressed="'+(v==="good")+'">✅ Right</button>'+
+    '<button class="btn small bad" data-rv="bad" data-id="'+id+'" aria-pressed="'+(v==="bad")+'">❌ Wrong</button>'+
+    '<button class="btn small fake" data-rv="fake" data-id="'+id+'" aria-pressed="'+(v==="fake")+'">🚩 Fake card</button>'+
+    (v?'<button class="btn small" data-rv="" data-id="'+id+'">Clear</button>':'');
+  if(open){
+    h+='<div class="reasons" role="group" aria-label="Why was it wrong?">'+Object.entries(DATA.reasons).map(([k,l])=>'<button data-reason="'+k+'" data-id="'+id+'" aria-pressed="'+(d.review.reason===k)+'">'+esc(l)+'</button>').join("")+
+      '<input type="text" placeholder="Note (optional): what was it really?" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
+  }
+  if(v==="fake") h+='<div class="reasons"><input type="text" placeholder="What gave it away? (optional)" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
+  return h+'</div>';
+}
+
+function accuracy(){
+  const a=DATA.accuracy||{}; const el=document.getElementById("acc");
+  const pctOf=(n,t)=>t?Math.round(n/t*100)+"%":"–";
+  const reasons=Object.entries(a.byReason||{}).sort((x,y)=>y[1]-x[1]);
+  el.innerHTML='<div class="nums">'+
+    '<div><span class="k">Reviewed</span><span class="v">'+(a.reviewed||0)+' / '+(a.flagged||0)+'</span></div>'+
+    '<div><span class="k">Right</span><span class="v pos">'+(a.good||0)+' · '+pctOf(a.good,a.reviewed)+'</span></div>'+
+    '<div><span class="k">Wrong</span><span class="v neg">'+(a.bad||0)+'</span></div>'+
+    '<div><span class="k">Fake</span><span class="v">'+(a.fake||0)+'</span></div>'+
+    '<div><span class="k">Alerts right</span><span class="v">'+pctOf(a.alertsGood,a.alertsReviewed)+'</span></div>'+
+    '<div><span class="k">Wrong now fixed</span><span class="v pos">'+(a.fixed||0)+' / '+(a.bad||0)+'</span></div>'+
+  '</div>'+
+  (a.reviewed?'<div class="bar" role="img" aria-label="Right, wrong and fake share"><i style="width:'+(a.good/a.reviewed*100)+'%;background:var(--good)"></i><i style="width:'+(a.bad/a.reviewed*100)+'%;background:var(--bad)"></i><i style="width:'+(a.fake/a.reviewed*100)+'%;background:var(--warn)"></i></div>':'')+
+  (reasons.length?'<div class="why">'+reasons.map(([k,n])=>'<span class="tag bad">'+esc(DATA.reasons[k]||"No reason given")+' · '+n+'</span>').join("")+'</div>':'')+
+  '<div><a class="btn small" href="/api/review/export" download>Download review (CSV) to send to Claude</a></div>';
+}
+
 function card(d){
   const ringCol=d.conf>=65?"var(--good)":d.conf>=45?"var(--warn)":"var(--bad)";
   const verdict=d.conf>=65?"Strong buy":d.conf>=45?"Check first":"Risky";
   const fallback = icon(d.kind)+'<small>'+esc(d.set_name)+'</small>';
   const photo=d.image?'<img src="'+esc(d.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createRange().createContextualFragment(this.dataset.f))" data-f="'+esc(fallback)+'">':fallback;
   const feeTxt=d.account_type==="INDIVIDUAL"?(d.fee_included?"incl. in price":"added"):d.account_type==="BUSINESS"?"none (business)":"check listing";
-  const st=d.status==="bought"?'<span class="tag bought">Bought</span>':d.status==="bad"?'<span class="tag bad">Bad match</span>':d.status==="passed"?'<span class="tag">Passed</span>':"";
+  const rv=d.review;
+  const st=(d.status==="bought"?'<span class="tag bought">Bought</span>':"")+
+    (rv?(rv.verdict==="good"?'<span class="tag good">✅ Right match</span>':rv.verdict==="fake"?'<span class="tag warn">🚩 Fake</span>':'<span class="tag bad">❌ Wrong'+(rv.reason?": "+esc(DATA.reasons[rv.reason]||rv.reason):"")+'</span>'):"")+
+    (d.recheck&&d.recheck.now!=="same"?'<span class="tag '+(rv&&rv.verdict==="bad"?"fixed":"warn")+'">Today’s rules: '+(d.recheck.now==="rejected"?"turned away ("+esc(d.recheck.reason)+")":"now "+esc(d.recheck.product))+'</span>':"");
   const gone=d.gone_hours!=null?'<span class="tag bad">Gone after '+hours(d.gone_hours)+'</span>':"";
   const cert=d.cert_status==="verified"?'<span class="tag good">PSA cert verified</span>':d.cert_status==="mismatch"?'<span class="tag bad">PSA cert mismatch</span>':d.cert_status==="no cert"?'<span class="tag warn">No cert number shown</span>':d.cert?'<span class="tag">Cert '+esc(d.cert)+'</span>':"";
   const sup=d.supply?'<span class="tag'+(d.supply.today>d.supply.avg*2&&d.supply.today>=3?' warn':'')+'">'+d.supply.today+' new UK listing'+(d.supply.today===1?"":"s")+' today · '+d.supply.avg.toFixed(1)+'/day avg</span>':"";
@@ -320,8 +380,7 @@ function card(d){
         (d.pulse_url?'<a class="btn" href="'+esc(d.pulse_url)+'" target="_blank" rel="noopener">View on Pulse</a>':'')+
         '<span class="spacer"></span>'+
         '<button class="btn small" data-act="bought" data-id="'+esc(d.item_id)+'">'+(d.status==="bought"?"Undo bought":"Bought")+'</button>'+
-        '<button class="btn small" data-act="bad" data-id="'+esc(d.item_id)+'">'+(d.status==="bad"?"Undo bad match":"Bad match")+'</button>'+
-      '</div>'+
+      '</div>'+reviewBar(d)+
     '</div>'+
     '<div class="side">'+
       '<div class="conf"><div class="ring" style="background:conic-gradient('+ringCol+' '+d.conf+'%, var(--line) 0)"><span>'+d.conf+'</span></div>'+
@@ -344,7 +403,7 @@ document.getElementById("sortby").value=sortBy;
 const cats=[...new Set(DATA.deals.map(d=>d.category))];
 const fbar=document.getElementById("filters");
 const sortEl=fbar.querySelector(".sort");
-[["all","All"],["instant","Instant alerts"],["hot","Hot"],["grading","Grading plays"],...cats.map(c=>["cat:"+c,CAT[c]||c]),["bought","Bought"]].forEach(([f,l],i)=>{
+[["all","All"],["toreview","To review"],["wrong","Wrong / fake"],["instant","Instant alerts"],["hot","Hot"],["grading","Grading plays"],...cats.map(c=>["cat:"+c,CAT[c]||c]),["bought","Bought"]].forEach(([f,l],i)=>{
   const b=document.createElement("button"); b.id="f-"+f.replace(":","-"); b.dataset.f=f; b.textContent=l; b.setAttribute("aria-pressed",i===0);
   fbar.insertBefore(b,sortEl);
 });
@@ -357,9 +416,12 @@ function summary(){
   document.getElementById("s-conf").textContent=live.length?Math.round(live.reduce((a,d)=>a+d.conf,0)/live.length):"–";
 }
 
+const touched=new Set();   // deals you've just reviewed stay in view until you change filter
 function keep(d){
-  if(filter==="all") return true;
+  if(filter==="all"||touched.has(d.item_id)) return true;
   if(filter==="instant") return d.instant;
+  if(filter==="toreview") return !d.review;
+  if(filter==="wrong") return d.review&&d.review.verdict!=="good";
   if(filter==="hot") return d.label==="Hot";
   if(filter==="grading") return d.grade_gain!=null&&d.grade_gain>0;
   if(filter==="bought") return d.status==="bought";
@@ -371,7 +433,7 @@ function render(){
   const shown=DATA.deals.filter(keep).sort((a,b)=>(a.status==="bad")-(b.status==="bad")||keys[sortBy](b)-keys[sortBy](a));
   document.getElementById("list").innerHTML=shown.length?shown.map(card).join(""):
     '<div class="empty">'+(DATA.deals.length?"Nothing in this filter.":"No under-market listings found on this day yet. The scanner checks eBay every 5 minutes.")+'</div>';
-  summary();
+  summary(); accuracy();
 }
 
 document.getElementById("market").innerHTML=DATA.market.sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category)).map(m=>{
@@ -405,13 +467,39 @@ pick.addEventListener("change",()=>{ location.search="?day="+pick.value; });
 
 fbar.addEventListener("click",e=>{
   const b=e.target.closest("button[data-f]"); if(!b) return;
-  filter=b.dataset.f;
+  filter=b.dataset.f; touched.clear();
   fbar.querySelectorAll("button[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b));
   render();
 });
 document.getElementById("sortby").addEventListener("change",e=>{ sortBy=e.target.value; try{localStorage.setItem("mds-sort",sortBy);}catch(err){} render(); });
 
+async function sendReview(d, body){
+  const r=await fetch("/api/deals/"+encodeURIComponent(d.item_id)+"/review",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  const a=DATA.accuracy, was=d.review&&d.review.verdict;
+  if(was){ a.reviewed--; a[was]--; if(was==="bad"){ const k=d.review.reason||"unspecified"; if(a.byReason[k]&&!--a.byReason[k]) delete a.byReason[k]; if(d.recheck&&d.recheck.now!=="same") a.fixed--; } if(d.instant){ a.alertsReviewed--; if(was==="good") a.alertsGood--; } }
+  d.review=body.verdict?{verdict:body.verdict,reason:body.reason||null,note:body.note||null}:null;
+  const now=d.review&&d.review.verdict;
+  if(now){ a.reviewed++; a[now]++; if(now==="bad"){ const k=d.review.reason||"unspecified"; a.byReason[k]=(a.byReason[k]||0)+1; if(d.recheck&&d.recheck.now!=="same") a.fixed++; } if(d.instant){ a.alertsReviewed++; if(now==="good") a.alertsGood++; } }
+  if(d.status!=="bought") d.status=now&&now!=="good"?"bad":"new";
+}
+document.getElementById("list").addEventListener("change",async e=>{
+  const inp=e.target.closest("input[data-note]"); if(!inp) return;
+  const d=DATA.deals.find(x=>x.item_id===inp.dataset.note); if(!d||!d.review) return;
+  try{ await sendReview(d,{verdict:d.review.verdict,reason:d.review.reason,note:inp.value}); inp.style.borderColor="var(--good)"; }catch(err){ inp.style.borderColor="var(--bad)"; }
+});
 document.getElementById("list").addEventListener("click",async e=>{
+  const rb=e.target.closest("button[data-rv],button[data-reason]");
+  if(rb){
+    const d=DATA.deals.find(x=>x.item_id===rb.dataset.id); if(!d) return;
+    rb.disabled=true; touched.add(d.item_id);
+    try{
+      if(rb.dataset.reason) await sendReview(d,{verdict:"bad",reason:rb.dataset.reason,note:d.review&&d.review.note});
+      else { const v=rb.dataset.rv; await sendReview(d, v ? {verdict:v,reason:v==="bad"&&d.review?d.review.reason:null,note:d.review&&d.review.note} : {verdict:null}); }
+      render();
+    }catch(err){ rb.disabled=false; rb.textContent="Couldn't save, try again"; }
+    return;
+  }
   const b=e.target.closest("button[data-act]"); if(!b) return;
   const d=DATA.deals.find(x=>x.item_id===b.dataset.id); if(!d) return;
   const next=d.status===b.dataset.act?"new":b.dataset.act;
