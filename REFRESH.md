@@ -9,12 +9,12 @@ Pulse is the market price the scanner buys against and the price you resell at, 
 1. Clone the deal-scanner repo and work in it.
 2. Run every Pulse market screen below with `sortBy: volume30d`, `sortDirection: desc`. Take the first page only; that's where the liquid cards are.
 3. For every product in `data/catalogue.json` that none of the screens returned (sealed, thin EX-era and WOTC cards), fetch it with `get_product_details`, 10 ids per call.
-4. For any **new raw card** that has a PSA 10 version in the refresh, fetch `get_product_details` to get its PSA 10 rate (`gradedPopulation.byGrader.psa.grade10Probability`) and LP price.
+4. **Condition prices.** On the morning run, fetch `get_product_details` for every raw card in the catalogue (10 ids per call) and take `pricesByCondition.lp`, `.mp` and `.hp`. On the evening run, only do this for new raw cards. The scanner prices LP / MP / HP listings from these; Pulse has no damaged price. The same call gives the PSA 10 rate (`gradedPopulation.byGrader.psa.grade10Probability`) for any new raw card.
 5. Write `data/pulse-refresh.json`:
    ```json
-   { "fetched_at": "<ISO timestamp>", "rows": [ [id, name, number, market, t7, t30, s7, s30, src, cat, p10, lp, urlSlug], ... ] }
+   { "fetched_at": "<ISO timestamp>", "rows": [ [id, name, number, market, t7, t30, s7, s30, src, cat, p10, lp, urlSlug, mp, hp], ... ] }
    ```
-   Columns follow `columns` in `catalogue.json`: t7 / t30 rounded to 1 decimal; src = `salesRateChangePercent` (null if missing); urlSlug = the part of the Pulse URL after `/cards/` or `/sealed/`; p10 and lp null unless fetched; cat = the category of the screen it came from.
+   Columns follow `columns` in `catalogue.json`: t7 / t30 rounded to 1 decimal; src = `salesRateChangePercent` (null if missing); urlSlug = the part of the Pulse URL after `/cards/` or `/sealed/`; p10, lp, mp and hp null unless fetched (null keeps the last value); cat = the category of the screen it came from.
 6. Run `node scripts/merge-pulse.mjs`, then `npm test`. Only continue if tests pass.
 7. Commit `data/catalogue.json` with the message `Pulse refresh <timestamp>` and push. The GitHub Action loads it into the database.
 8. Reply with the merge summary line and anything unusual: big moves, products dropped from screens, prices that look wrong.
@@ -33,6 +33,8 @@ Pulse is the market price the scanner buys against and the price you resell at, 
 | ex_era | cards | same sets/rarities, PSA 9, price ≥ 50, volume30d ≥ 1; limit 15 |
 | wotc | cards | setIds `bs1s, bss, bsu, base2, base3, base4, base6, tr, gym1, gym2, neo1, neo2, neo3, neo4, ecard1, ecard2, ecard3`; rarities `Rare Holo, Rare Secret, Rare Shining, Rare Holo ☆`; excludeGraded; price ≥ 40; volume30d ≥ 3; limit 20 |
 | wotc | cards | same, PSA 9, price ≥ 60, volume30d ≥ 2; limit 20 |
+| wotc | cards | setIds `base4, base6`; languages `English`; excludeGraded; price ≥ 20; volume30d ≥ 2; limit 40 (Base Set 2 holos and Legendary Collection reverse holos, any rarity) |
+| wotc | cards | setIds `base4, base6`; PSA 9, price ≥ 60, volume30d ≥ 2; limit 20 |
 
 Skip any row whose price history looks broken (for example a 99% one-week drop on a card with one sale). Note it in the reply instead.
 

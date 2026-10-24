@@ -4,23 +4,23 @@ Watches eBay UK around the clock for Pokémon cards and sealed product priced un
 
 ## What it watches
 
-The catalogue (`data/catalogue.json`) is built from Pulse and currently holds 255 products:
+The catalogue (`data/catalogue.json`) is built from Pulse and currently holds 303 products:
 
 | Category | What's in it |
 |---|---|
-| Modern SIR | Special Illustration Rares from Scarlet & Violet and Mega Evolution, raw NM and PSA 10 |
+| Modern SIR | Special Illustration Rares from Scarlet & Violet and Mega Evolution, raw and PSA 10. Searches only pull listings with "SIR" or "Illustration" in the title |
 | Promos | Black Star promos from every era (WOTC to Mega Evolution), raw NM and PSA 10, with stamped versions tracked separately |
 | Alt Art | Sun & Moon and Sword & Shield ultra/secret rares above £40, raw NM and PSA 10 |
 | EX era | EX-era (2003–07) ex cards and Gold Stars, raw NM and PSA 9 |
-| WOTC vintage | Wizards-era holos, raw NM and PSA 9, with 1st Edition and Shadowless tracked separately |
+| WOTC vintage | Wizards-era holos, raw and PSA 9, with 1st Edition and Shadowless tracked separately, plus Base Set 2 holos and Legendary Collection (including the reverse holos) |
 | Sealed | A handful of ETBs, booster boxes and bundles |
 
 Only products with real recent sales on Pulse are included, so the scanner isn't comparing against prices nobody pays.
 
 ## What it does every 5 minutes
 
-1. Runs 8 set-level eBay searches (55 in total, so every set is checked about every 35 minutes), newest UK Buy It Now / Best Offer listings first.
-2. Identifies each new listing against the catalogue by card number, name, set, grade, edition, stamp and finish. Fakes, Japanese copies, wrong grades, reprints, played cards, empty boxes and multi-listings are rejected, and the report shows the reason for each.
+1. Runs 8 set-level eBay searches (64 in total, so every set is checked about every 40 minutes), newest UK Buy It Now / Best Offer listings first.
+2. Identifies each new listing against the catalogue by card number, name, set, grade, edition, stamp and finish. Fakes, Japanese copies, wrong grades, reprints, empty boxes and multi-listings are rejected; raw cards are priced for their condition, and the report shows the reason for each.
 3. Prices the best 12 candidates properly: seller type, real postage and a PSA cert check. Anything beyond 12 is held over to the next run rather than lost.
 4. Scores each deal and labels it:
    - **Hot:** selling much faster than its 30-day pace, with the price holding. This is the momentum play.
@@ -43,6 +43,12 @@ eBay also tells you how hard the resale will be:
 - **Our sold record:** listings that drop off the ladder between checks are recorded as likely sales, with price and date. Rising sold prices add confidence; falling ones take it away. It can't see Best Offer prices, so it's a guide, not gospel.
 - **Time to sell:** listings queued at or below Pulse, divided by sales per day (Pulse, plus our sold record). Under a week is a quick flip, over a month a long hold, and the score moves accordingly. Each deal also shows resale profit per day held.
 - **Sales stalling:** this week's sales well under the usual pace, with the price not rising, costs 10 points. A cheap listing on a card nobody is buying is a high-risk buy.
+
+## Card condition (raw cards)
+
+The scanner reads the condition from the seller's **Card Condition** field on the listing first, then from the title: NM / Near Mint, LP / Lightly Played / Excellent, MP / Moderately Played / Played, HP / Heavily Played / Poor, DMG / Damaged / Creased. Pulse's own price for that condition is the market (Pulse has NM, LP, MP and HP prices). Damaged has no Pulse price, so it's valued at 60% of the HP price, flagged as an estimate and loses 10 confidence. A listing that states no condition anywhere is priced as LP and loses 5 confidence. Grading plays are only shown for NM cards, and the listing ladder only compares copies in the same condition.
+
+Fallbacks when Pulse has no price for a condition: `COND_LP` 0.7, `COND_MP` 0.5, `COND_HP` 0.35 of NM; `COND_DMG_OF_HP` 0.6; `COND_UNKNOWN` "LP". Set any of them in `wrangler.toml` `[vars]` to change them.
 
 ## The data gets better over time
 

@@ -138,3 +138,12 @@ CREATE TABLE IF NOT EXISTS meta (
   key TEXT PRIMARY KEY,
   value TEXT
 );
+
+-- Pulse prices for raw cards in lower conditions (NM is the market price). Kept in its own table so older databases need no migration.
+CREATE TABLE IF NOT EXISTS cond_prices (
+  product_id TEXT PRIMARY KEY,
+  lp REAL,
+  mp REAL,
+  hp REAL,
+  updated_at TEXT
+);

@@ -1,0 +1,614 @@
+{
+  "_note": "Built from Pulse (pulsetcg.io) screens on 21 Oct 2026. Raw cards carry Pulse LP / MP / HP prices (lp, mp, hp). Ask Claude to refresh it (see README), then run: npm run prices:update. Release dates for recent sets are approximate (first priced on Pulse).",
+  "updated_at": "2026-10-21T14:56:00Z",
+  "categories": {
+    "sir": {
+      "name": "Modern SIR",
+      "rule": "Special Illustration Rares, Scarlet & Violet and Mega Evolution eras, raw and PSA 10. eBay searches require SIR or Illustration in the title"
+    },
+    "promo": {
+      "name": "Promos",
+      "rule": "Black Star promos from every era, raw NM and PSA 10"
+    },
+    "alt": {
+      "name": "Alternate Art",
+      "rule": "Sun & Moon / Sword & Shield ultra and secret rares above £40 (where the alt arts sit), raw NM and PSA 10"
+    },
+    "ex_era": {
+      "name": "EX era ex",
+      "rule": "EX-era (2003-07) ex cards and Gold Stars, raw NM and PSA 9"
+    },
+    "wotc": {
+      "name": "WOTC vintage",
+      "rule": "Wizards-era holos (incl. Base Set 2 and Legendary Collection reverse holos), raw and PSA 9, 1st Edition tracked separately"
+    },
+    "sealed": {
+      "name": "Sealed",
+      "rule": "Selected sealed products"
+    }
+  },
+  "sets": {
+    "sv1": {
+      "name": "Scarlet & Violet",
+      "q": "scarlet violet",
+      "released": "2023-03-31"
+    },
+    "sv3": {
+      "name": "Obsidian Flames",
+      "q": "obsidian flames",
+      "released": "2023-08-11"
+    },
+    "sv3pt5": {
+      "name": "Scarlet & Violet 151",
+      "q": "151",
+      "released": "2023-09-22"
+    },
+    "sv4": {
+      "name": "Paradox Rift",
+      "q": "paradox rift",
+      "released": "2023-11-03"
+    },
+    "sv4pt5": {
+      "name": "Paldean Fates",
+      "q": "paldean fates",
+      "released": "2024-01-26"
+    },
+    "sv6": {
+      "name": "Twilight Masquerade",
+      "q": "twilight masquerade",
+      "released": "2024-05-24"
+    },
+    "sv7": {
+      "name": "Stellar Crown",
+      "q": "stellar crown",
+      "released": "2024-09-13"
+    },
+    "sv8": {
+      "name": "Surging Sparks",
+      "q": "surging sparks",
+      "released": "2024-11-08"
+    },
+    "sv8pt5": {
+      "name": "Prismatic Evolutions",
+      "q": "prismatic evolutions",
+      "released": "2025-01-17"
+    },
+    "sv9": {
+      "name": "Journey Together",
+      "q": "journey together",
+      "released": "2025-03-28"
+    },
+    "sv10": {
+      "name": "Destined Rivals",
+      "q": "destined rivals",
+      "released": "2025-05-30"
+    },
+    "m1": {
+      "name": "Mega Evolution",
+      "q": "mega evolution",
+      "released": "2025-09-26"
+    },
+    "me02": {
+      "name": "Phantasmal Flames",
+      "q": "phantasmal flames",
+      "released": "2025-11-14"
+    },
+    "me2pt5": {
+      "name": "Ascended Heroes",
+      "q": "ascended heroes",
+      "released": "2026-01-30"
+    },
+    "me04": {
+      "name": "Chaos Rising",
+      "q": "chaos rising",
+      "released": "2026-05-01"
+    },
+    "me05": {
+      "name": "Pitch Black",
+      "q": "pitch black",
+      "released": "2026-06-27"
+    },
+    "svp": {
+      "name": "Scarlet & Violet Promos",
+      "q": "svp promo"
+    },
+    "swshp": {
+      "name": "Sword & Shield Promos",
+      "q": "swsh promo"
+    },
+    "smp": {
+      "name": "Sun & Moon Promos",
+      "q": "sm promo"
+    },
+    "xyp": {
+      "name": "XY Promos",
+      "q": "xy promo"
+    },
+    "mep": {
+      "name": "Mega Evolutions Promos",
+      "q": "mep promo"
+    },
+    "basep": {
+      "name": "Wizards of the Coast Promos",
+      "q": "wotc black star promo",
+      "vintage": true
+    },
+    "sm11pt5": {
+      "name": "Hidden Fates",
+      "q": "hidden fates"
+    },
+    "sm12": {
+      "name": "Cosmic Eclipse",
+      "q": "cosmic eclipse"
+    },
+    "swsh3pt5": {
+      "name": "Champion's Path",
+      "q": "champions path"
+    },
+    "swsh4": {
+      "name": "Vivid Voltage",
+      "q": "vivid voltage"
+    },
+    "swsh5": {
+      "name": "Battle Styles",
+      "q": "battle styles"
+    },
+    "swsh6": {
+      "name": "Chilling Reign",
+      "q": "chilling reign"
+    },
+    "swsh7": {
+      "name": "Evolving Skies",
+      "q": "evolving skies"
+    },
+    "swsh8": {
+      "name": "Fusion Strike",
+      "q": "fusion strike"
+    },
+    "swsh9": {
+      "name": "Brilliant Stars",
+      "q": "brilliant stars"
+    },
+    "swsh10": {
+      "name": "Astral Radiance",
+      "q": "astral radiance"
+    },
+    "swsh11": {
+      "name": "Lost Origin",
+      "q": "lost origin"
+    },
+    "swsh12": {
+      "name": "Silver Tempest",
+      "q": "silver tempest"
+    },
+    "swsh12pt5": {
+      "name": "Crown Zenith",
+      "q": "crown zenith"
+    },
+    "ex1": {
+      "name": "EX Ruby & Sapphire",
+      "q": "ex ruby sapphire"
+    },
+    "ex2": {
+      "name": "EX Sandstorm",
+      "q": "ex sandstorm"
+    },
+    "ex3": {
+      "name": "EX Dragon",
+      "q": "ex dragon holo"
+    },
+    "ex4": {
+      "name": "EX Team Magma vs Team Aqua",
+      "q": "team magma aqua ex"
+    },
+    "ex5": {
+      "name": "EX Hidden Legends",
+      "q": "ex hidden legends"
+    },
+    "ex6": {
+      "name": "EX FireRed & LeafGreen",
+      "q": "ex firered leafgreen"
+    },
+    "ex9": {
+      "name": "EX Emerald",
+      "q": "ex emerald"
+    },
+    "ex10": {
+      "name": "EX Unseen Forces",
+      "q": "ex unseen forces"
+    },
+    "ex11": {
+      "name": "EX Delta Species",
+      "q": "delta species ex"
+    },
+    "ex12": {
+      "name": "EX Legend Maker",
+      "q": "ex legend maker"
+    },
+    "ex16": {
+      "name": "EX Power Keepers",
+      "q": "ex power keepers"
+    },
+    "base5": {
+      "name": "EX Team Rocket Returns",
+      "q": "team rocket returns ex"
+    },
+    "bsu": {
+      "name": "Base Set Unlimited",
+      "q": "base set holo",
+      "vintage": true
+    },
+    "bs1s": {
+      "name": "Base Set (1st Edition)",
+      "q": "base set holo",
+      "vintage": true
+    },
+    "base2": {
+      "name": "Jungle",
+      "q": "jungle holo",
+      "vintage": true
+    },
+    "base3": {
+      "name": "Fossil",
+      "q": "fossil holo",
+      "vintage": true
+    },
+    "tr": {
+      "name": "Team Rocket",
+      "q": "team rocket holo wotc",
+      "vintage": true
+    },
+    "gym1": {
+      "name": "Gym Heroes",
+      "q": "gym heroes",
+      "vintage": true
+    },
+    "gym2": {
+      "name": "Gym Challenge",
+      "q": "gym challenge",
+      "vintage": true
+    },
+    "neo2": {
+      "name": "Neo Discovery",
+      "q": "neo discovery",
+      "vintage": true
+    },
+    "neo4": {
+      "name": "Neo Destiny",
+      "q": "neo destiny",
+      "vintage": true
+    },
+    "base4": {
+      "name": "Base Set 2",
+      "q": "base set 2",
+      "vintage": true
+    },
+    "base6": {
+      "name": "Legendary Collection",
+      "q": "legendary collection",
+      "vintage": true
+    }
+  },
+  "columns": [
+    "id",
+    "name",
+    "number",
+    "market",
+    "t7",
+    "t30",
+    "s7",
+    "s30",
+    "src",
+    "cat",
+    "p10",
+    "lp",
+    "url",
+    "mp",
+    "hp"
+  ],
+  "products": [
+    ["card:me05|116/084|Holo|null|null|null","Mega Darkrai ex","116/084",124.11,-8.9,-18.6,29,118,5.3,"sir",null,132.95,"mega-darkrai-ex-116-084-holo",112.74,null],
+    ["card:me2pt5|269/217|Holo|null|null|null","Mega Gengar ex","269/217",34.15,-12.1,-11.6,20,112,-23.5,"sir",0.704,31.31,"mega-gengar-ex-269-217-holo",30.68,30.06],
+    ["card:me05|114/084|Holo|null|null|null","Mega Zeraora ex","114/084",35.35,0.6,-12.3,21,101,-10.9,"sir",null,33.2,"mega-zeraora-ex-114-084-holo",null,null],
+    ["card:me05|117/084|Holo|null|null|null","Morpeko ex","117/084",63.43,18.7,-3,20,98,-12.5,"sir",null,58.91,"morpeko-ex-117-084-holo",49.07,null],
+    ["card:me05|115/084|Holo|null|null|null","Mega Chandelure ex","115/084",29.37,8.3,-12.8,15,78,-17.6,"sir",null,24.97,"mega-chandelure-ex-115-084-holo",null,null],
+    ["card:sv3|223/197|null|null|null|null","Charizard ex","223/197",68.86,2.6,-12.2,13,75,-25.7,"sir",0.223,63.51,"charizard-ex-223-197",43.48,41.11],
+    ["card:me05|119/084|Holo|null|null|null","Gwynn","119/084",26.13,-1.3,-9.1,13,65,-14.3,"sir",null,20.79,"gwynn-119-084-holo",null,null],
+    ["card:sv3pt5|200/165|null|null|null|null","Blastoise ex","200/165",88.64,1,-17.5,11,64,-26.3,"sir",0.295,81.32,"blastoise-ex-200-165",77.12,70.68],
+    ["card:sv3pt5|198/165|null|null|null|null","Venusaur ex","198/165",73.21,-9.1,-1,13,63,-11.6,"sir",null,69.3,"venusaur-ex-198-165",63.04,53.9],
+    ["card:me02|125/094|Holo|null|null|null","Mega Charizard X ex","125/094",475.77,-5.5,-16.2,14,59,1.7,"sir",0.597,466.25,"mega-charizard-x-ex-125-094-holo",363.7,356.42],
+    ["card:sv3pt5|199/165|null|null|null|null","Charizard ex","199/165",264.1,2.5,-0.8,12,57,-9.8,"sir",0.272,232.06,"charizard-ex-199-165",225,173.87],
+    ["card:sv3pt5|201/165|null|null|null|null","Alakazam ex","201/165",43.99,-14.3,-21.9,7,50,-40,"sir",null,40.49,"alakazam-ex-201-165",34,33.32],
+    ["card:sv3pt5|202/165|null|null|null|null","Zapdos ex","202/165",71.52,5.2,1.9,6,50,-48.6,"sir",0.284,68.18,"zapdos-ex-202-165",48.88,35.85],
+    ["card:sv10|231/182|Holo|null|null|null","Team Rocket's Mewtwo ex","231/182",321.55,-5.5,-14,9,44,-12.3,"sir",0.577,302.3,"team-rockets-mewtwo-ex-231-182-holo",250.3,null],
+    ["card:sv9|184/159|null|null|null|null","Lillie's Clefairy ex","184/159",77.89,2.3,-11,7,43,-30.2,"sir",null,74.35,"lillies-clefairy-ex-184-159",50.24,49.23],
+    ["card:sv10|229/182|Holo|null|null|null","Team Rocket's Moltres ex","229/182",62.73,-7.3,-16.7,5,40,-46.4,"sir",null,59.91,"team-rockets-moltres-ex-229-182-holo",58.71,null],
+    ["card:sv10|230/182|Holo|null|null|null","Ethan's Ho-Oh ex","230/182",97.93,-19.1,-24.3,4,40,-57.1,"sir",0.582,101.34,"ethans-ho-oh-ex-230-182-holo",91.23,null],
+    ["card:sv10|232/182|Holo|null|null|null","Cynthia's Garchomp ex","232/182",127.05,-3.2,-18.8,9,40,-3.6,"sir",0.601,124.5,"cynthias-garchomp-ex-232-182-holo",113.45,null],
+    ["card:sv10|236/182|Holo|null|null|null","Ethan's Adventure","236/182",30.54,-10.7,-12.7,10,38,12.8,"sir",null,28.26,"ethans-adventure-236-182-holo",26.85,null],
+    ["card:sv1|245/198|null|null|null|null","Gardevoir ex","245/198",46.52,0.3,4.8,6,38,-32.3,"sir",null,36.33,"gardevoir-ex-245-198",35.6,34.88],
+    ["card:sv9|183/159|null|null|null|null","Iono's Bellibolt ex","183/159",28.51,-8.2,-2.8,7,37,-18.9,"sir",null,26.61,"ionos-bellibolt-ex-183-159",22.54,null],
+    ["card:sv9|187/159|null|null|null|null","Salamence ex","187/159",42.51,-6.4,-7.6,6,36,-28.6,"sir",null,38.53,"salamence-ex-187-159",37.75,36.99],
+    ["card:me2pt5|277/217|Holo|null|null|null","Pikachu ex","277/217",173.19,-9.4,-37.7,7,35,-14.3,"sir",0.555,146.44,"pikachu-ex-277-217-holo",143.51,140.63],
+    ["card:me2pt5|290/217|Holo|null|null|null","Mega Dragonite ex","290/217",295.18,-11.5,-20.7,4,35,-51,"sir",0.629,279.58,"mega-dragonite-ex-290-217-holo",null,262.6],
+    ["card:me2pt5|276/217|Holo|null|null|null","Pikachu ex","276/217",582.2,-13.9,-4.3,8,33,3.9,"sir",0.615,516.04,"pikachu-ex-276-217-holo",465.7,null],
+    ["card:sv10|233/182|Holo|null|null|null","Team Rocket's Nidoking ex","233/182",64.37,-9.2,-9.4,7,32,-6.2,"sir",0.592,63.03,"team-rockets-nidoking-ex-233-182-holo",57,null],
+    ["card:me2pt5|284/217|Holo|null|null|null","Mega Gengar ex","284/217",617.22,-3.8,-6.3,6,31,-17.1,"sir",0.63,493.24,"mega-gengar-ex-284-217-holo",287.79,282.03],
+    ["card:sv4pt5|232/091|null|null|null|null","Mew ex","232/091",480.49,-12.7,-21.1,5,30,-28.6,"sir",0.327,407.48,"mew-ex-232-091",366.27,219.27],
+    ["card:sv8|237/191|null|null|null|null","Milotic ex","237/191",82.97,7.4,12.8,4,30,-42.9,"sir",null,57.9,"milotic-ex-237-191",56.74,null],
+    ["card:sv9|185/159|null|null|null|null","N's Zoroark ex","185/159",33.35,3.9,-3.1,5,30,-28.6,"sir",null,29.6,"ns-zoroark-ex-185-159",25.7,null],
+    ["card:me2pt5|280/217|Holo|null|null|null","Lillie's Clefairy ex","280/217",92.84,-7.3,-7.6,6,29,-11.3,"sir",null,88,"lillies-clefairy-ex-280-217-holo",70.72,null],
+    ["card:me2pt5|281/217|Holo|null|null|null","Team Rocket's Mewtwo ex","281/217",172.32,-4,-16.9,6,28,-8.2,"sir",0.664,166.91,"team-rockets-mewtwo-ex-281-217-holo",152,148.96],
+    ["card:me2pt5|289/217|Holo|null|null|null","Steven's Metagross ex","289/217",46.17,-1.1,-11.4,2,27,-68.3,"sir",null,43.83,"stevens-metagross-ex-289-217-holo",38.67,null],
+    ["card:sv10|234/182|Holo|null|null|null","Team Rocket's Crobat ex","234/182",45.27,0.7,-1.6,8,27,27,"sir",null,41.88,"team-rockets-crobat-ex-234-182-holo",null,36.25],
+    ["card:m1|179/132|Holo|null|null|null","Mega Lucario ex","179/132",133.58,5.8,-8.1,7,26,15.4,"sir",0.643,128.49,"mega-lucario-ex-179-132-holo",101.17,null],
+    ["card:sv7|169/142|null|null|null|null","Dachsbun ex","169/142",47.29,-9.5,24.9,2,26,-67,"sir",null,36.19,"dachsbun-ex-169-142",30.34,null],
+    ["card:sv8|236/191|null|null|null|null","Durant ex","236/191",30.88,7.3,11.6,7,26,15.4,"sir",null,23.1,"durant-ex-236-191",18.82,16.39],
+    ["card:m1|177/132|Holo|null|null|null","Mega Venusaur ex","177/132",89.1,-6.2,-4.5,3,25,-48.6,"sir",0.654,87.3,"mega-venusaur-ex-177-132-holo",74.44,null],
+    ["card:m1|180/132|Holo|null|null|null","Mega Absol ex","180/132",35.67,-5.2,-11.6,8,25,37.1,"sir",null,34.95,"mega-absol-ex-180-132-holo",29.74,null],
+    ["card:sv9|186/159|null|null|null|null","Hop's Zacian ex","186/159",25.55,11.9,-2.1,4,25,-31.4,"sir",null,21,"hops-zacian-ex-186-159",null,15.68],
+    ["card:m1|181/132|Holo|null|null|null","Mega Latias ex","181/132",48.11,-15.2,-20.6,6,24,7.1,"sir",0.657,43.79,"mega-latias-ex-181-132-holo",null,null],
+    ["card:me2pt5|286/217|Holo|null|null|null","N's Zoroark ex","286/217",82.6,-4.1,-5.5,6,24,7.1,"sir",null,80.94,"ns-zoroark-ex-286-217-holo",76.23,74.7],
+    ["card:me2pt5|288/217|Holo|null|null|null","Fezandipiti ex","288/217",35.4,1.1,-13.8,5,24,-10.7,"sir",null,28.26,"fezandipiti-ex-288-217-holo",null,null],
+    ["card:sv4|253/182|null|null|null|null","Altaria ex","253/182",36.28,-9.7,-26.8,2,24,-64.3,"sir",null,32.28,"altaria-ex-253-182",29.53,null],
+    ["card:m1|182/132|Holo|null|null|null","Mega Kangaskhan ex","182/132",46.55,5.8,13.4,5,23,-6.8,"sir",0.668,36.95,"mega-kangaskhan-ex-182-132-holo",null,null],
+    ["card:me2pt5|275/217|Holo|null|null|null","Mega Froslass ex","275/217",40.27,12.9,-5.6,4,23,-25.5,"sir",null,35.76,"mega-froslass-ex-275-217-holo",34.25,null],
+    ["card:me2pt5|279/217|Holo|null|null|null","Iono's Bellibolt ex","279/217",39.02,12.6,-11.4,3,22,-41.6,"sir",null,29.73,"ionos-bellibolt-ex-279-217-holo",null,null],
+    ["card:me2pt5|287/217|Holo|null|null|null","Marnie's Grimmsnarl ex","287/217",34.53,-4.3,-6.9,8,22,55.8,"sir",null,31.98,"marnies-grimmsnarl-ex-287-217-holo",31.34,null],
+    ["card:me2pt5|282/217|Holo|null|null|null","Mega Diancie ex","282/217",34.13,1.2,-10.2,5,21,2,"sir",null,30.95,"mega-diancie-ex-282-217-holo",null,null],
+    ["card:sv4pt5|233/091|null|null|null|null","Gardevoir ex","233/091",94.55,8.7,5.6,8,21,63.3,"sir",null,82.41,"gardevoir-ex-233-091",57.43,null],
+    ["card:me02|125/094|Holo|null|PSA|10","Mega Charizard X ex","125/094",1188.22,7.7,-15.3,15,50,28.6,"sir",null,null,"",null,null],
+    ["card:sv10|231/182|Holo|null|PSA|10","Team Rocket's Mewtwo ex","231/182",712.59,-6.1,-21.1,7,21,42.9,"sir",null,null,"",null,null],
+    ["card:me2pt5|269/217|Holo|null|PSA|10","Mega Gengar ex","269/217",126.88,-10.6,-34.4,6,20,28.6,"sir",null,null,"",null,null],
+    ["card:sv10|232/182|Holo|null|PSA|10","Cynthia's Garchomp ex","232/182",297.91,-3.2,-13.4,6,20,28.6,"sir",null,null,"",null,null],
+    ["card:sv3pt5|199/165|null|null|PSA|10","Charizard ex","199/165",1246.39,9.8,2.8,4,20,-14.3,"sir",null,null,"",null,null],
+    ["card:me2pt5|276/217|Holo|null|PSA|10","Pikachu ex","276/217",1320,-7,-27.7,4,19,-9.8,"sir",null,null,"",null,null],
+    ["card:sv10|230/182|Holo|null|PSA|10","Ethan's Ho-Oh ex","230/182",231.09,-6.1,-17.7,4,19,-9.8,"sir",null,null,"",null,null],
+    ["card:me2pt5|284/217|Holo|null|PSA|10","Mega Gengar ex","284/217",1184.43,-12,-24.4,6,17,51.3,"sir",null,null,"",null,null],
+    ["card:me2pt5|271/217|Holo|null|PSA|10","Mega Dragonite ex","271/217",121.17,-7.9,-10.1,4,16,7.1,"sir",null,null,"mega-dragonite-ex-271-217-holo-psa-10",null,null],
+    ["card:m1|179/132|Holo|null|PSA|10","Mega Lucario ex","179/132",285.31,8.5,-7.4,5,15,42.9,"sir",null,null,"",null,null],
+    ["card:sv8|238/191|null|null|PSA|10","Pikachu ex","238/191",639.8,0,-1.5,0,14,null,"sir",null,null,"pikachu-ex-238-191-psa-10",null,null],
+    ["card:sv4pt5|234/091|null|null|PSA|10","Charizard ex","234/091",626.23,-1.7,-4,2,13,-34.1,"sir",null,null,"charizard-ex-234-091-psa-10",null,null],
+    ["card:m1|178/132|Holo|null|PSA|10","Mega Gardevoir ex","178/132",220.93,0.9,-9.9,3,12,7.1,"sir",null,null,"mega-gardevoir-ex-178-132-holo-psa-10",null,null],
+    ["card:m1|177/132|Holo|null|PSA|10","Mega Venusaur ex","177/132",147.57,-7.6,-17.8,3,11,16.9,"sir",null,null,"",null,null],
+    ["card:m1|181/132|Holo|null|PSA|10","Mega Latias ex","181/132",146.31,6.6,-13.1,3,11,16.9,"sir",null,null,"",null,null],
+    ["card:me2pt5|290/217|Holo|null|PSA|10","Mega Dragonite ex","290/217",733.29,-10.5,-21.4,3,11,16.9,"sir",null,null,"",null,null],
+    ["card:m1|182/132|Holo|null|PSA|10","Mega Kangaskhan ex","182/132",91.42,-14,-18,2,10,-14.3,"sir",null,null,"",null,null],
+    ["card:me2pt5|277/217|Holo|null|PSA|10","Pikachu ex","277/217",493.3,-15.5,-27.2,4,10,71.4,"sir",null,null,"",null,null],
+    ["card:me2pt5|281/217|Holo|null|PSA|10","Team Rocket's Mewtwo ex","281/217",425.55,-7.8,-21.1,2,10,-14.3,"sir",null,null,"",null,null],
+    ["card:sv3|223/197|null|null|PSA|10","Charizard ex","223/197",506.31,-3.9,-7.8,1,10,-57.1,"sir",null,null,"",null,null],
+    ["card:sv4pt5|232/091|null|null|PSA|10","Mew ex","232/091",2482.65,0,2.5,0,10,null,"sir",null,null,"",null,null],
+    ["card:sv10|233/182|Holo|null|PSA|10","Team Rocket's Nidoking ex","233/182",170.51,1.8,-6.4,4,9,90.5,"sir",null,null,"",null,null],
+    ["card:sv3pt5|202/165|null|null|PSA|10","Zapdos ex","202/165",315.49,0,-20.3,0,9,null,"sir",null,null,"",null,null],
+    ["card:sv6|214/167|null|null|PSA|10","Greninja ex","214/167",527.69,-0.7,-12,1,9,-52.4,"sir",null,null,"greninja-ex-214-167-psa-10",null,null],
+    ["card:sv3pt5|200/165|null|null|PSA|10","Blastoise ex","200/165",415.38,-5.4,-5.9,1,8,-46.4,"sir",null,null,"",null,null],
+    ["card:svp|SVP044|null|null|null|null","Charmander","SVP044",39.26,-20.4,-22.3,20,74,15.8,"promo",null,36.41,"charmander-svp044-holo",34.31,25],
+    ["card:swshp|SWSH262|null|null|null|null","Charizard VSTAR","SWSH262",56.69,6.4,-0.4,17,73,-0.2,"promo",0.152,49.53,"charizard-vstar-swsh262",35.42,34.71],
+    ["card:swshp|SWSH260|null|null|null|null","Charizard V","SWSH260",35.2,-7.3,-11.9,21,66,36.4,"promo",0.175,32.17,"charizard-v-swsh260",29.6,16.26],
+    ["card:svp|SVP052|null|null|null|null","Mewtwo","SVP052",43.87,-17.2,-1.2,13,61,-8.7,"promo",0.204,39.65,"mewtwo-svp052",34.99,17.31],
+    ["card:svp|SVP053|null|null|null|null","Mew ex","SVP053",68.27,-8.2,-3.8,7,56,-46.4,"promo",0.178,64.23,"mew-ex-svp053",40.93,null],
+    ["card:svp|SVP131|null|null|null|null","Kingdra ex","SVP131",56.92,15.5,14.4,14,50,20,"promo",null,46.08,"kingdra-ex-svp131",44.58,38.03],
+    ["card:svp|SVP132|null|null|null|null","Greninja ex","SVP132",53.87,13.6,10.3,5,50,-57.1,"promo",0.389,40.78,"greninja-ex-svp132",39.96,null],
+    ["card:smp|SM210|null|null|null|null","Moltres & Zapdos & Articuno GX","SM210",114.29,-1,-1.2,9,41,-5.9,"promo",0.561,107.04,"moltres-zapdos-articuno-gx-sm210",94.19,77.18],
+    ["card:mep|MEP031|null|Pokémon Center|null|null","N's Zekrom","MEP031",35.66,-9.3,-29.7,4,36,-52.4,"promo",null,31.58,"ns-zekrom-031-pokemon-center",null,null],
+    ["card:smp|SM162|null|null|null|null","Pikachu","SM162",89.36,2,0,2,23,-62.7,"promo",null,71.45,"pikachu-sm162",53.22,43.21],
+    ["card:mep|MEP009|null|Pokémon Center|null|null","Alakazam","MEP009",33.9,3.2,-14.7,3,22,-41.6,"promo",null,31.98,"alakazam-009-pokemon-center",null,null],
+    ["card:svp|SVP206|null|null|null|null","Marnie's Morpeko","SVP206",30.19,-4.9,-17.6,7,21,42.9,"promo",null,29.58,"marnies-morpeko-svp206-holo",23.58,null],
+    ["card:xyp|XY96|null|null|null|null","Umbreon","XY96",80.38,12.8,41,8,21,63.3,"promo",null,65.56,"umbreon-xy96",40.64,33.28],
+    ["card:mep|MEP027|Holo|null|null|null","Haunter","MEP027",44.37,3.2,-1.3,5,20,7.1,"promo",null,34.5,"haunter-027-holo",33.81,28.87],
+    ["card:xyp|XY124|Holo|null|null|null","Pikachu EX","XY124",245.32,3.1,9.4,6,19,35.3,"promo",null,153.96,"pikachu-ex-xy124-holo",108.08,74.24],
+    ["card:xyp|XY121|Holo|null|null|null","Charizard EX","XY121",68.97,-2,5.3,5,18,19,"promo",null,46.37,"charizard-ex-xy121-holo",33.48,29.76],
+    ["card:mep|MEP010|null|Pokémon Center|null|null","Riolu","MEP010",31.16,-15.5,8.8,3,17,-24.4,"promo",null,24.11,"riolu-010-pokemon-center",23.62,null],
+    ["card:svp|SVP085|Non-holo|null|null|null","Pikachu with Grey Felt Hat","SVP085",538.51,1.3,1.8,2,17,-49.6,"promo",0.424,493.97,"pikachu-with-grey-felt-hat-svp085-non-holo",484.09,320.95],
+    ["card:basep|9|null|null|null|null","Mew","9",120,3.2,3.2,3,16,-19.6,"promo",null,75.2,"mew-9",65.59,35.47],
+    ["card:swshp|SWSH052|Cosmos Holo|null|null|null","Gengar","SWSH052",67.29,6.5,-5.1,7,16,87.5,"promo",null,55.4,"gengar-swsh052-cosmos-holo",52.2,null],
+    ["card:xyp|XY123|Holo|null|null|null","Venusaur EX","XY123",110.48,1,20.9,3,16,-19.6,"promo",null,77.84,"venusaur-ex-xy123-holo",62.76,46.56],
+    ["card:smp|SM163|null|null|null|null","Mimikyu","SM163",34.81,1,-0.1,0,15,null,"promo",null,29.02,"mimikyu-sm163",24.59,17.29],
+    ["card:svp|SVP173|null|Pokémon Center|null|null","Eevee","SVP173",44.01,-12.4,-23.1,3,15,-14.3,"promo",null,33.36,"eevee-svp173-pokemon-center",29.39,null],
+    ["card:swshp|SWSH075|Cosmos Holo|null|null|null","Special Delivery Charizard","SWSH075",125.38,4.6,-4.3,1,15,-71.4,"promo",null,99.99,"special-delivery-charizard-swsh075-cosmos-holo",75.52,65.65],
+    ["card:smp|SM247|Holo|null|null|null","Reshiram & Charizard GX","SM247",30.93,4.1,2.9,4,14,22.4,"promo",null,28.3,"reshiram-charizard-gx-sm247-holo",22.08,15.62],
+    ["card:mep|MEP023|Holo|null|PSA|10","Mega Charizard X ex","MEP023",127.39,-1.7,-16.9,6,39,-34.1,"promo",null,null,"mega-charizard-x-ex-023-holo-psa-10",null,null],
+    ["card:mep|MEP024|Holo|null|PSA|10","Oricorio ex","MEP024",68.24,-3.1,-4.3,12,31,65.9,"promo",null,null,"oricorio-ex-024-holo-psa-10",null,null],
+    ["card:svp|SVP085|Non-holo|null|PSA|10","Pikachu with Grey Felt Hat","SVP085",1839.37,-2.2,-2.6,6,25,2.9,"promo",null,null,"",null,null],
+    ["card:swshp|SWSH291|null|null|PSA|10","Lucario VSTAR","SWSH291",96.63,-2.2,-13.8,5,22,-2.6,"promo",null,null,"lucario-vstar-swsh291-psa-10",null,null],
+    ["card:smp|SM210|null|null|PSA|10","Moltres & Zapdos & Articuno GX","SM210",339.52,2.1,0.9,3,16,-19.6,"promo",null,null,"",null,null],
+    ["card:smp|SM211|Holo|null|PSA|10","Charizard GX","SM211",83.7,1.1,-7.4,1,13,-67,"promo",null,null,"charizard-gx-sm211-holo-psa-10",null,null],
+    ["card:svp|SVP132|null|null|PSA|10","Greninja ex","SVP132",257,-3,-8.4,4,13,31.9,"promo",null,null,"",null,null],
+    ["card:svp|SVP176|null|null|PSA|10","Umbreon ex","SVP176",124.93,3,-7.8,2,13,-34.1,"promo",null,null,"umbreon-ex-svp176-psa-10",null,null],
+    ["card:mep|MEP007|Cosmos Holo|null|PSA|10","Psyduck","MEP007",339.2,16.6,14.6,7,12,150,"promo",null,null,"psyduck-007-cosmos-holo-psa-10",null,null],
+    ["card:svp|SVP052|null|null|PSA|10","Mewtwo","SVP052",418.34,-5.3,-2.4,3,12,7.1,"promo",null,null,"",null,null],
+    ["card:svp|SVP159|null|Pokémon Center|PSA|10","Magneton","SVP159",162.28,0.1,-13.2,2,11,-22.1,"promo",null,null,"magneton-svp159-pokemon-center-psa-10",null,null],
+    ["card:swshp|SWSH136|null|25th Anniversary|PSA|10","Mimikyu","SWSH136",310.69,25.2,29.4,5,11,94.8,"promo",null,null,"mimikyu-swsh136-25th-anniversary-psa-10",null,null],
+    ["card:svp|SVP053|null|null|PSA|10","Mew ex","SVP053",526.73,-0.5,-5.6,1,10,-57.1,"promo",null,null,"",null,null],
+    ["card:svp|SVP056|null|null|PSA|10","Charizard ex","SVP056",144.84,0,21.8,0,9,null,"promo",null,null,"charizard-ex-svp056-psa-10",null,null],
+    ["card:svp|SVP173|null|null|PSA|10","Eevee","SVP173",97.41,-3.3,-11.2,1,9,-52.4,"promo",null,null,"eevee-svp173-holo-psa-10",null,null],
+    ["card:swshp|SWSH262|null|null|PSA|10","Charizard VSTAR","SWSH262",1132.64,4.8,3.1,2,9,-4.8,"promo",null,null,"",null,null],
+    ["card:mep|MEP038|null|null|PSA|10","Charmander","MEP038",95.79,0,-19.4,0,7,null,"promo",null,null,"charmander-mep038-psa-10",null,null],
+    ["card:svp|SVP074|null|null|PSA|10","Charizard ex","SVP074",120.11,0,-2.5,0,7,null,"promo",null,null,"charizard-ex-svp074-holo-psa-10",null,null],
+    ["card:svp|SVP075|null|Pokémon Center|PSA|10","Mimikyu","SVP075",258.76,-0.3,-5,3,7,83.7,"promo",null,null,"mimikyu-svp075-pokemon-center-psa-10",null,null],
+    ["card:swshp|SWSH260|null|null|PSA|10","Charizard V","SWSH260",458.63,-4.8,-15.6,2,7,22.4,"promo",null,null,"",null,null],
+    ["card:sm11pt5|68/68|Holo|null|null|null","Jessie & James","68/68",50.94,-1,-0.7,8,35,-2,"alt",null,47.99,"jessie-james-68-68-holo",33.23,22.96],
+    ["card:swsh8|245/264|null|null|null|null","Celebi V","245/264",59.3,4.7,-0.4,6,33,-22.1,"alt",0.435,53.86,"celebi-v-245-264",41.6,40.19],
+    ["card:swsh12pt5|GG69/GG70|null|null|null|null","Giratina VSTAR","GG69/GG70",189.98,-12,-4.5,10,27,58.7,"alt",0.54,164.55,"giratina-vstar-gg69-gg70",144.31,125.14],
+    ["card:swsh9|154/172|null|null|null|null","Charizard V","154/172",184.48,2.6,5.5,3,27,-52.4,"alt",0.496,146.72,"charizard-v-154-172",143.78,114.1],
+    ["card:swsh10|161/189|null|null|null|null","Beedrill V","161/189",47.19,4.6,-0.9,6,24,7.1,"alt",null,43.83,"beedrill-v-161-189",31.46,22.08],
+    ["card:swsh12pt5|GG68/GG70|null|null|null|null","Origin Forme Dialga VSTAR","GG68/GG70",91.17,10.8,-2.2,7,22,36.4,"alt",null,74.99,"origin-forme-dialga-vstar-gg68-gg70",44.1,43.21],
+    ["card:swsh12|186/195|null|null|null|null","Lugia V","186/195",338.34,-1.3,6.8,2,22,-61,"alt",0.546,294.3,"lugia-v-186-195",233.07,189.15],
+    ["card:swsh8|251/264|null|null|null|null","Mew V","251/264",71.09,-2.2,3.4,2,19,-54.9,"alt",null,62.13,"mew-v-251-264",52.07,34.79],
+    ["card:sm12|245/236|Holo|null|null|null","Mimikyu","245/236",40.57,1,0.1,3,17,-24.4,"alt",null,37.01,"mimikyu-245-236-holo",26.65,20.07],
+    ["card:sm12|241/236|Holo|null|null|null","Pikachu","241/236",131.89,-3,0,3,16,-19.6,"alt",null,111.6,"pikachu-241-236-holo",76.85,53.16],
+    ["card:swsh10|177/189|null|null|null|null","Origin Forme Dialga V","177/189",41.26,15.4,-3.1,4,16,7.1,"alt",null,29.51,"origin-forme-dialga-v-177-189",28.91,18.84],
+    ["card:swsh12pt5|GG70/GG70|null|null|null|null","Arceus VSTAR","GG70/GG70",112.53,-2.5,0.6,3,16,-19.6,"alt",0.566,97.68,"arceus-vstar-gg70-gg70",67.08,65.73],
+    ["card:swsh9|174/172|null|null|null|null","Charizard VSTAR","174/172",43.89,-3.1,20.3,3,16,-19.6,"alt",null,29.54,"charizard-vstar-174-172",28.94,28.36],
+    ["card:swsh7|192/203|null|null|null|null","Dragonite V","192/203",284.02,-5.7,-1.5,2,14,-38.8,"alt",null,223.81,"dragonite-v-192-203",205.2,137.33],
+    ["card:swsh11|180/196|null|null|null|null","Aerodactyl V","180/196",118.29,-6.9,-14.7,2,12,-28.6,"alt",null,115.92,"aerodactyl-v-180-196",98.46,null],
+    ["card:swsh12pt5|GG67/GG70|null|null|null|null","Origin Forme Palkia VSTAR","GG67/GG70",82.17,2.1,-3.2,2,12,-28.6,"alt",null,69.67,"origin-forme-palkia-vstar-gg67-gg70",68.27,null],
+    ["card:swsh4|188/185|null|null|null|null","Pikachu VMAX","188/185",91.66,-0.1,-4.3,1,12,-64.3,"alt",null,62.06,"pikachu-vmax-188-185",33.04,32.37],
+    ["card:swsh5|155/163|null|null|null|null","Tyranitar V","155/163",156.22,7.2,0,1,12,-64.3,"alt",null,153.09,"tyranitar-v-155-163",90,76.36],
+    ["card:swsh6|177/198|null|null|null|null","Galarian Moltres V","177/198",112.72,-7.8,-3.5,1,11,-61,"alt",null,83.18,"galarian-moltres-v-177-198",81.51,36.66],
+    ["card:swsh7|180/203|null|null|null|null","Espeon V","180/203",117.49,6.9,1.6,1,11,-61,"alt",null,107.76,"espeon-v-180-203",65,49.89],
+    ["card:swsh7|194/203|null|null|null|null","Rayquaza V","194/203",276.16,2.4,-1.1,1,11,-61,"alt",0.506,225.78,"rayquaza-v-194-203",221.26,141.67],
+    ["card:swsh8|270/264|null|null|null|null","Espeon VMAX","270/264",192.34,-2.1,-12.8,4,11,55.8,"alt",null,139.06,"espeon-vmax-270-264",136.27,93.48],
+    ["card:swsh10|167/189|null|null|null|null","Origin Forme Palkia V","167/189",56.84,0,1.4,0,10,null,"alt",0.519,45.47,"origin-forme-palkia-v-167-189",34.02,26.7],
+    ["card:swsh11|186/196|null|null|null|null","Giratina V","186/196",490.41,-5.7,-3,1,10,-57.1,"alt",0.403,425.61,"giratina-v-186-196",379.99,238.73],
+    ["card:swsh6|166/198|null|null|null|null","Zeraora V","166/198",47.33,3.9,-22.9,1,10,-57.1,"alt",null,44.41,"zeraora-v-166-198",23.63,23.15],
+    ["card:swsh7|215/203|null|null|null|null","Umbreon VMAX","215/203",1244.79,0,-6.2,0,9,null,"alt",null,923.14,"umbreon-vmax-215-203",704.68,674.88],
+    ["card:sm11pt5|69/68|Holo|null|PSA|10","Moltres & Zapdos & Articuno GX","69/68",118.74,17.5,5.2,8,23,49.1,"alt",null,null,"moltres-zapdos-articuno-gx-69-68-holo-psa-10",null,null],
+    ["card:swsh12|186/195|null|null|PSA|10","Lugia V","186/195",1051.03,1.4,7,1,17,-74.8,"alt",null,null,"",null,null],
+    ["card:swsh12pt5|160/159|null|null|PSA|10","Pikachu","160/159",212.77,3.1,-13.2,4,15,14.3,"alt",null,null,"pikachu-160-159-psa-10",null,null],
+    ["card:swsh9|154/172|null|null|PSA|10","Charizard V","154/172",544.54,-3,-2.3,2,13,-34.1,"alt",null,null,"",null,null],
+    ["card:swsh11|186/196|null|null|PSA|10","Giratina V","186/196",2896.2,0,7,0,10,null,"alt",null,null,"",null,null],
+    ["card:swsh11|TG29/TG30|null|null|PSA|10","Pikachu VMAX","TG29/TG30",105.2,0,-5.7,0,10,null,"alt",null,null,"pikachu-vmax-tg29-tg30-psa-10",null,null],
+    ["card:swsh12pt5|GG69/GG70|null|null|PSA|10","Giratina VSTAR","GG69/GG70",432.98,-9.5,-9.3,2,10,-14.3,"alt",null,null,"",null,null],
+    ["card:swsh6|201/198|null|null|PSA|10","Blaziken VMAX","201/198",506.66,-2.2,-4.9,2,10,-14.3,"alt",null,null,"blaziken-vmax-201-198-psa-10",null,null],
+    ["card:swsh7|209/203|null|null|PSA|10","Glaceon VMAX","209/203",372,0,-6.9,1,10,-57.1,"alt",null,null,"glaceon-vmax-209-203-psa-10",null,null],
+    ["card:swsh8|269/264|null|null|PSA|10","Mew VMAX","269/264",394.85,4.5,9.7,3,10,28.6,"alt",null,null,"mew-vmax-269-264-psa-10",null,null],
+    ["card:swsh12pt5|GG70/GG70|null|null|PSA|10","Arceus VSTAR","GG70/GG70",265.04,-2.9,-8.3,2,9,-4.8,"alt",null,null,"",null,null],
+    ["card:swsh7|194/203|null|null|PSA|10","Rayquaza V","194/203",885.6,-2,-4.4,2,9,-4.8,"alt",null,null,"",null,null],
+    ["card:swsh7|212/203|null|null|PSA|10","Sylveon VMAX","212/203",434.89,-3.6,-12.2,1,9,-52.4,"alt",null,null,"sylveon-vmax-212-203-psa-10",null,null],
+    ["card:swsh7|215/203|null|null|PSA|10","Umbreon VMAX","215/203",3212.15,-1.4,0.5,2,9,-4.8,"alt",null,null,"",null,null],
+    ["card:swsh7|218/203|null|null|PSA|10","Rayquaza VMAX","218/203",1675,0.1,-13.9,1,9,-52.4,"alt",null,null,"rayquaza-vmax-218-203-psa-10",null,null],
+    ["card:swsh8|245/264|null|null|PSA|10","Celebi V","245/264",304.31,1.7,-1,3,9,42.9,"alt",null,null,"",null,null],
+    ["card:swsh10|167/189|null|null|PSA|10","Origin Forme Palkia V","167/189",231.36,-1.4,6.6,1,8,-46.4,"alt",null,null,"",null,null],
+    ["card:swsh11|TG30/TG30|null|null|PSA|10","Mew VMAX","TG30/TG30",135.34,0,-0.3,0,8,null,"alt",null,null,"mew-vmax-tg30-tg30-psa-10",null,null],
+    ["card:swsh12|TG29/TG30|null|null|PSA|10","Rayquaza VMAX","TG29/TG30",122.04,0,-5.1,0,8,null,"alt",null,null,"rayquaza-vmax-tg29-tg30-psa-10",null,null],
+    ["card:swsh3pt5|079/073|Holo|null|PSA|10","Charizard V","079/073",342.4,1.8,6.1,2,8,7.1,"alt",null,null,"charizard-v-079-073-holo-psa-10",null,null],
+    ["card:ex3|92/97|Holo|null|null|null","Kingdra ex","92/97",109.12,7.9,32.4,0,7,null,"ex_era",null,74.85,"kingdra-ex-92-97-holo",42.12,36.76],
+    ["card:ex1|101/109|Holo|null|null|null","Mewtwo ex","101/109",518.15,18.4,59.9,2,5,71.4,"ex_era",null,271.61,"mewtwo-ex-101-109-holo",170.26,128.27],
+    ["card:ex2|97/100|Holo|null|null|null","Kabutops ex","97/100",104.95,4.4,23.5,1,5,-14.3,"ex_era",null,71.69,"kabutops-ex-97-100-holo",53.28,38.12],
+    ["card:ex1|102/109|Holo|null|null|null","Scyther ex","102/109",136.69,6.4,27.4,0,4,null,"ex_era",null,84.2,"scyther-ex-102-109-holo",57.21,42.59],
+    ["card:ex1|97/109|Holo|null|null|null","Electabuzz ex","97/109",65.43,-2.2,15.4,1,4,null,"ex_era",null,46.88,"electabuzz-ex-97-109-holo",25.27,20.16],
+    ["card:ex1|98/109|Holo|null|null|null","Hitmonchan ex","98/109",118.44,-6.6,55.9,0,4,null,"ex_era",null,63.64,"hitmonchan-ex-98-109-holo",44.79,33.03],
+    ["card:ex2|100/100|Holo|null|null|null","Wailord ex","100/100",119.79,-2.2,11.3,1,4,null,"ex_era",null,75.71,"wailord-ex-100-100-holo",56.34,41.84],
+    ["card:ex2|94/100|Holo|null|null|null","Aerodactyl ex","94/100",145.48,4.1,25.9,0,4,null,"ex_era",null,102.03,"aerodactyl-ex-94-100-holo",77.98,48.42],
+    ["card:ex3|91/97|Holo|null|null|null","Golem ex","91/97",71.08,7.2,10.3,2,4,114.3,"ex_era",null,48.43,"golem-ex-91-97-holo",28.31,24.15],
+    ["card:ex11|108/113|Holo|null|null|null","Flareon ex","108/113",216.05,10,17.2,2,3,185.7,"ex_era",null,135.86,"flareon-ex-108-113-holo-1",107.67,76.61],
+    ["card:ex2|96/100|Holo|null|null|null","Gardevoir ex","96/100",204.98,26.7,58,2,3,185.7,"ex_era",null,172.74,"gardevoir-ex-96-100-holo-1",107.26,78.88],
+    ["card:ex3|90/97|Holo|null|null|null","Dragonite ex","90/97",570.34,4.1,49.5,0,3,null,"ex_era",null,428.63,"dragonite-ex-90-97-holo",203.02,150.83],
+    ["card:ex5|100/101|Holo|null|null|null","Vileplume ex","100/101",84.92,10.7,13.9,1,3,42.9,"ex_era",null,64.37,"vileplume-ex-100-101-holo",46.23,43.48],
+    ["card:ex6|112/112|Holo|null|null|null","Venusaur ex","112/112",304.33,-1,2.5,1,3,42.9,"ex_era",null,218.42,"venusaur-ex-112-112-holo",156.69,108.33],
+    ["card:ex9|99/106|Holo|null|null|null","Regirock ex","99/106",147.27,1,18.5,1,3,42.9,"ex_era",null,96.4,"regirock-ex-99-106-holo",75.82,49.96],
+    ["card:ex10|110/115|Holo|null|null|null","Typhlosion ex","110/115",132.41,19.9,27.8,0,2,null,"ex_era",null,76.16,"typhlosion-ex-110-115-holo",46.52,38.7],
+    ["card:ex10|111/115|Holo|null|null|null","Tyranitar ex","111/115",855.28,-1.5,99.5,0,2,null,"ex_era",null,293.15,"tyranitar-ex-111-115-holo",229.53,146.12],
+    ["card:ex10|115/115|Holo|null|null|null","Suicune ☆","115/115",1506.45,0,28.6,0,2,null,"ex_era",null,951.97,"suicune-115-115-holo",802.23,603.04],
+    ["card:ex11|109/113|Holo|null|null|null","Jolteon ex","109/113",159.3,19.5,23.1,1,2,114.3,"ex_era",null,124.55,"jolteon-ex-109-113-holo-1",88.22,71.76],
+    ["card:ex12|84/92|Holo|null|null|null","Armaldo ex","84/92",131.02,31.6,68.6,1,2,114.3,"ex_era",null,95.52,"armaldo-ex-84-92-holo",64.53,47.16],
+    ["card:base5|96/109|Holo|null|PSA|9","Rocket's Articuno ex","96/109",3087.93,-5.2,174.5,2,3,185.7,"ex_era",null,null,"rockets-articuno-ex-96-109-holo-psa-9",null,null],
+    ["card:ex10|106/115|Holo|null|PSA|9","Meganium ex","106/115",714.2,0,50,0,3,null,"ex_era",null,null,"meganium-ex-106-115-holo-psa-9",null,null],
+    ["card:ex4|91/95|Holo|null|PSA|9","Entei ex","91/95",2065.35,0,16.6,0,3,null,"ex_era",null,null,"entei-ex-91-95-holo-psa-9",null,null],
+    ["card:base5|102/109|Holo|null|PSA|9","Rocket's Scyther ex","102/109",1411.25,0,37.2,0,2,null,"ex_era",null,null,"rockets-scyther-ex-102-109-holo-psa-9",null,null],
+    ["card:base5|103/109|Holo|null|PSA|9","Rocket's Sneasel ex","103/109",1136.52,0,45,0,2,null,"ex_era",null,null,"rockets-sneasel-ex-103-109-holo-psa-9",null,null],
+    ["card:base5|98/109|Holo|null|PSA|9","Rocket's Hitmonchan ex","98/109",1948.57,67.2,89,1,2,114.3,"ex_era",null,null,"rockets-hitmonchan-ex-98-109-holo-psa-9",null,null],
+    ["card:ex11|109/113|Holo|null|PSA|9","Jolteon ex","109/113",1742.32,158.8,198.4,1,2,114.3,"ex_era",null,null,"",null,null],
+    ["card:ex16|97/108|Holo|null|PSA|9","Shiftry ex","97/108",210,0,36.3,0,2,null,"ex_era",null,null,"shiftry-ex-97-108-holo-psa-9",null,null],
+    ["card:ex16|98/108|Holo|null|PSA|9","Skarmory ex","98/108",246.23,0,6.9,0,2,null,"ex_era",null,null,"skarmory-ex-98-108-holo-psa-9",null,null],
+    ["card:ex2|94/100|Holo|null|PSA|9","Aerodactyl ex","94/100",1277.49,0,190.9,0,2,null,"ex_era",null,null,"",null,null],
+    ["card:ex2|97/100|Holo|null|PSA|9","Kabutops ex","97/100",467.16,0,27.6,0,2,null,"ex_era",null,null,"",null,null],
+    ["card:ex3|90/97|Holo|null|PSA|9","Dragonite ex","90/97",6524.67,3,158.7,0,2,null,"ex_era",null,null,"",null,null],
+    ["card:ex3|96/97|Holo|null|PSA|9","Muk ex","96/97",472.57,0,170,0,2,null,"ex_era",null,null,"muk-ex-96-97-holo-psa-9",null,null],
+    ["card:ex5|98/101|Holo|null|PSA|9","Regirock ex","98/101",366.97,0,29.3,0,2,null,"ex_era",null,null,"regirock-ex-98-101-holo-1-psa-9",null,null],
+    ["card:ex5|99/101|Holo|null|PSA|9","Registeel ex","99/101",735.6,17.8,125,0,2,null,"ex_era",null,null,"registeel-ex-99-101-holo-psa-9",null,null],
+    ["card:ex10|113/115|Holo|null|PSA|9","Entei ☆","113/115",5085.94,9.9,75.4,0,3,null,"ex_era",null,null,"entei-113-115-holo-psa-9",null,null],
+    ["card:ex10|114/115|Holo|null|PSA|9","Raikou ☆","114/115",4945.73,2.6,66.4,0,1,null,"ex_era",null,null,"raikou-114-115-holo-psa-9",null,null],
+    ["card:base3|13/62|Holo|null|PSA|9","Muk","13/62",63.01,-9.6,17.4,1,7,-38.8,"wotc",null,null,"muk-13-62-holo-psa-9",null,null],
+    ["card:base2|2/64|Holo|null|PSA|9","Electrode","2/64",128.33,2.3,42.6,2,6,42.9,"wotc",null,null,"electrode-2-64-holo-psa-9",null,null],
+    ["card:base3|2/62|Holo|1st Edition|PSA|9","Articuno","2/62",1250.95,14.4,100.7,1,6,-28.6,"wotc",null,null,"articuno-2-62-holo-1st-edition-psa-9",null,null],
+    ["card:base3|2/62|Holo|null|PSA|9","Articuno","2/62",254.83,39.9,44.3,2,6,42.9,"wotc",null,null,"articuno-2-62-holo-psa-9",null,null],
+    ["card:bsu|15/102|Holo|null|PSA|9","Venusaur","15/102",502.33,-3.6,-1.9,4,6,185.7,"wotc",null,null,"",null,null],
+    ["card:bsu|8/102|Holo|1st Edition|PSA|9","Machamp","8/102",247.55,0,18.8,0,6,null,"wotc",null,null,"bsu-machamp-8-102-holo-1st-edition-psa-9",null,null],
+    ["card:neo2|15/75|Holo|null|PSA|9","Ursaring","15/75",119.99,-6.5,-11.7,2,6,42.9,"wotc",null,null,"ursaring-15-75-holo-psa-9",null,null],
+    ["card:tr|14/82|Holo|1st Edition|PSA|9","Dark Weezing","14/82",175.72,8.3,31.5,1,6,-28.6,"wotc",null,null,"dark-weezing-14-82-holo-1st-edition-psa-9",null,null],
+    ["card:base2|13/64|Holo|null|PSA|9","Venomoth","13/64",110.04,0,38.1,1,5,-14.3,"wotc",null,null,"venomoth-13-64-holo-psa-9",null,null],
+    ["card:base2|2/64|Holo|1st Edition|PSA|9","Electrode","2/64",270.45,18.3,44.4,2,5,71.4,"wotc",null,null,"electrode-2-64-holo-1st-edition-psa-9",null,null],
+    ["card:bsu|16/102|Holo|null|PSA|9","Zapdos","16/102",189.9,1.1,9.5,2,5,71.4,"wotc",null,null,"bsu-zapdos-16-102-holo-psa-9",null,null],
+    ["card:bsu|4/102|Holo|null|PSA|9","Charizard","4/102",2800.42,-1.9,-1.1,0,5,null,"wotc",null,null,"",null,null],
+    ["card:gym1|10/132|Holo|1st Edition|PSA|9","Misty's Tentacruel","10/132",289.65,31.7,141.4,1,5,-14.3,"wotc",null,null,"mistys-tentacruel-10-132-holo-1st-edition-psa-9",null,null],
+    ["card:gym1|4/132|Holo|1st Edition|PSA|9","Erika's Dragonair","4/132",858.6,0,104.8,0,5,null,"wotc",null,null,"erikas-dragonair-4-132-holo-1st-edition-psa-9",null,null],
+    ["card:gym1|7/132|Holo|1st Edition|PSA|9","Lt. Surge's Fearow","7/132",287.47,0,30.8,0,5,null,"wotc",null,null,"lt-surges-fearow-7-132-holo-1st-edition-psa-9",null,null],
+    ["card:gym2|13/132|Holo|1st Edition|PSA|9","Misty's Gyarados","13/132",1445.46,0,124.2,0,5,null,"wotc",null,null,"mistys-gyarados-13-132-holo-1st-edition-psa-9",null,null],
+    ["card:tr|12/82|Holo|1st Edition|PSA|9","Dark Slowbro","12/82",576.37,-0.9,84.8,0,5,null,"wotc",null,null,"dark-slowbro-12-82-holo-1st-edition-psa-9",null,null],
+    ["card:tr|3/82|Holo|1st Edition|PSA|9","Dark Blastoise","3/82",1850.8,68.3,94.9,0,5,null,"wotc",null,null,"dark-blastoise-3-82-holo-1st-edition-psa-9",null,null],
+    ["card:base2|7/64|Holo|1st Edition|PSA|9","Nidoqueen","7/64",614.17,41.6,113.8,2,4,114.3,"wotc",null,null,"nidoqueen-7-64-holo-1st-edition-psa-9",null,null],
+    ["card:base2|7/64|Holo|null|PSA|9","Nidoqueen","7/64",122.48,2.8,-2,1,4,7.1,"wotc",null,null,"nidoqueen-7-64-holo-psa-9",null,null],
+    ["card:bsu|4/102|Holo|null|null|null","Charizard","4/102",509.45,-0.9,2.3,6,29,-11.3,"wotc",null,280.22,"bsu-charizard-4-102-holo",212.33,146.27],
+    ["card:bs1s|8/102|Holo|1st Edition, Shadowless|null|null","Machamp","8/102",58.93,0.8,5.7,4,20,-14.3,"wotc",null,42.01,"bs1s-machamp-8-102-holo-1st-edition-shadowless",13.68,12.24],
+    ["card:bsu|10/102|Holo|null|null|null","Mewtwo","10/102",51.93,0.1,1.3,2,15,-42.9,"wotc",null,28.1,"bsu-mewtwo-10-102-holo",16.08,12.44],
+    ["card:tr|3/82|Holo|null|null|null","Dark Blastoise","3/82",116.68,1,7.4,4,15,14.3,"wotc",null,76.34,"dark-blastoise-3-82-holo",57.15,40.59],
+    ["card:tr|83/82|Holo|null|null|null","Dark Raichu","83/82",90.97,2.7,13.1,1,15,-71.4,"wotc",null,62.72,"dark-raichu-83-82-holo",47.96,37.53],
+    ["card:base3|5/62|Holo|null|null|null","Gengar","5/62",125,4.5,7.1,3,14,-8.2,"wotc",null,70.13,"gengar-5-62-holo",54.86,44.09],
+    ["card:bsu|1/102|Holo|null|null|null","Alakazam","1/102",53.74,0.3,2.9,2,14,-38.8,"wotc",null,32.34,"bsu-alakazam-1-102-holo",25.34,18.42],
+    ["card:tr|10/82|Holo|null|null|null","Dark Machamp","10/82",50.25,11.6,19.7,4,14,22.4,"wotc",null,34.71,"dark-machamp-10-82-holo",25.43,18.29],
+    ["card:tr|4/82|Holo|null|null|null","Dark Charizard","4/82",206.73,-2.9,-3,2,14,-38.8,"wotc",null,147.11,"dark-charizard-4-82-holo",102.86,78.15],
+    ["card:neo4|106/105|Holo|null|null|null","Shining Celebi","106/105",474.96,0.3,16.3,4,13,31.9,"wotc",null,321.98,"shining-celebi-106-105-holo",272.39,221.72],
+    ["card:base2|3/64|Holo|null|null|null","Flareon","3/64",50.48,0.1,18.4,3,12,7.1,"wotc",null,34.03,"flareon-3-64-holo",27.27,20.85],
+    ["card:tr|1/82|Holo|null|null|null","Dark Alakazam","1/82",50.16,0,0,3,12,7.1,"wotc",null,35.32,"dark-alakazam-1-82-holo",27.33,19.64],
+    ["card:bsu|2/102|Holo|null|null|null","Blastoise","2/102",140.67,0.6,4.1,1,11,-61,"wotc",null,74.57,"bsu-blastoise-2-102-holo",58.05,42.62],
+    ["card:base3|12/62|Holo|null|null|null","Moltres","12/62",40.38,3,8.5,3,10,28.6,"wotc",null,26.98,"moltres-12-62-holo",21.08,16.34],
+    ["card:base3|4/62|Holo|null|null|null","Dragonite","4/62",100.28,3.1,5.9,2,10,-14.3,"wotc",null,60.51,"dragonite-4-62-holo",45.13,34.79],
+    ["card:bsu|14/102|Holo|null|null|null","Raichu","14/102",44.33,0.2,-0.1,3,10,28.6,"wotc",null,27.6,"bsu-raichu-14-102-holo",22.46,15.94],
+    ["card:bsu|15/102|Holo|null|null|null","Venusaur","15/102",109.08,1.5,5.8,3,10,28.6,"wotc",null,60.44,"bsu-venusaur-15-102-holo",49.27,35.19],
+    ["card:base2|11/64|Holo|null|null|null","Snorlax","11/64",75.85,3.5,6.5,2,9,-4.8,"wotc",null,38.75,"snorlax-11-64-holo",31.98,21.59],
+    ["card:gym1|18/132|Holo|null|null|null","Misty","18/132",54.97,0.4,10,1,9,-52.4,"wotc",null,41.53,"misty-18-132-holo",34.09,26.21],
+    ["card:gym2|16/132|Holo|null|null|null","Sabrina's Alakazam","16/132",76.85,1,9.4,3,9,42.9,"wotc",null,49.25,"sabrinas-alakazam-16-132-holo",37.81,27.89],
+    ["sealed:sv8pt5|Prismatic Evolutions Elite Trainer Box","Prismatic Evolutions Elite Trainer Box",null,123.13,-3.6,-5.7,69,333,-11.2,"sealed",null,null,"prismatic-evolutions-elite-trainer-box",null,null],
+    ["sealed:sv8pt5|Prismatic Evolutions Pokemon Center Elite Trainer Box","Prismatic Evolutions Pokemon Center Elite Trainer Box",null,309.78,-3,-18,15,70,-8.2,"sealed",null,null,"prismatic-evolutions-pokemon-center-elite-trainer-box",null,null],
+    ["sealed:sv3pt5|151 Booster Bundle","151 Booster Bundle",null,120.39,-18,-6.4,11,91,-48.2,"sealed",null,null,"151-booster-bundle",null,null],
+    ["sealed:sv3pt5|151 Elite Trainer Box","151 Elite Trainer Box",null,405.67,5.3,1.4,null,null,null,"sealed",null,null,null,null,null],
+    ["sealed:sv10|Destined Rivals Elite Trainer Box","Destined Rivals Elite Trainer Box",null,89.65,-4,-2.1,174,933,-20.1,"sealed",null,null,"destined-rivals-elite-trainer-box",null,null],
+    ["sealed:me2pt5|Ascended Heroes Elite Trainer Box","Ascended Heroes Elite Trainer Box",null,134.43,-3.3,-0.7,58,315,-21.1,"sealed",null,null,"ascended-heroes-elite-trainer-box",null,null],
+    ["sealed:me05|Pitch Black Booster Box","Pitch Black Booster Box",null,166.48,-1.4,-1.9,66,356,-20.5,"sealed",null,null,"pitch-black-booster-box",null,null],
+    ["sealed:me05|Pitch Black Elite Trainer Box","Pitch Black Elite Trainer Box",null,68.2,0.3,6,61,341,-23.3,"sealed",null,null,"pitch-black-elite-trainer-box",null,null],
+    ["sealed:me04|Chaos Rising Pokemon Center Elite Trainer Box","Chaos Rising Pokemon Center Elite Trainer Box",null,76.56,2.5,1.4,73,338,-7.4,"sealed",null,null,"chaos-rising-pokemon-center-elite-trainer-box",null,null],
+    ["sealed:sv8|Surging Sparks Booster Box","Surging Sparks Booster Box",null,263.09,1.9,2.7,null,null,null,"sealed",null,null,null,null,null],
+    ["sealed:swsh7|Evolving Skies Booster Box","Evolving Skies Booster Box",null,2006.3,0,0.2,null,null,null,"sealed",null,null,null,null,null],
+    ["sealed:sv9|Journey Together Elite Trainer Box","Journey Together Elite Trainer Box",null,102.01,0.2,2.4,null,null,null,"sealed",null,null,null,null,null],
+    ["card:base4|2/130|Holo|null|null|null","Blastoise","2/130",116.83,-5.1,19.2,2,7,22.4,"wotc",0.005,68.58,"blastoise-2-130-holo",52.22,35.1],
+    ["card:base4|3/130|Holo|null|null|null","Chansey","3/130",21.12,0,13.9,0,7,null,"wotc",0.005,15.33,"chansey-3-130-holo",11.59,9.54],
+    ["card:base4|12/130|Holo|null|null|null","Nidoqueen","12/130",21.91,0,-3,1,6,-28.6,"wotc",0.009,14.57,"nidoqueen-12-130-holo",11.38,9.1],
+    ["card:base4|1/130|Holo|null|null|null","Alakazam","1/130",35.63,3,8.3,1,5,-14.3,"wotc",0.013,25.93,"alakazam-1-130-holo",19.6,16.18],
+    ["card:base4|16/130|Holo|null|null|null","Raichu","16/130",38.73,1,5.1,1,5,-14.3,"wotc",0.009,24.64,"raichu-16-130-holo",17.54,15.53],
+    ["card:base4|18/130|Holo|null|null|null","Venusaur","18/130",76.9,1,6.6,1,5,-14.3,"wotc",0.01,50.16,"venusaur-18-130-holo",39.4,30.97],
+    ["card:base4|10/130|Holo|null|null|null","Mewtwo","10/130",50.21,0,23,0,4,null,"wotc",0.017,29.87,"mewtwo-10-130-holo",20.43,15.88],
+    ["card:base4|13/130|Holo|null|null|null","Ninetales","13/130",22.16,1,11.6,0,4,0,"wotc",0.024,13.46,"ninetales-13-130-holo",12.04,8.46],
+    ["card:base4|14/130|Holo|null|null|null","Pidgeot","14/130",24.29,-9.5,-3,0,4,0,"wotc",0.008,14.44,"pidgeot-14-130-holo",12.15,9.36],
+    ["card:base4|17/130|Holo|null|null|null","Scyther","17/130",21.94,5.1,6.2,2,4,114.3,"wotc",0.01,15.27,"scyther-17-130-holo",12.37,9.48],
+    ["card:base4|4/130|Holo|null|null|null","Charizard","4/130",323.87,-6.6,1,0,4,0,"wotc",0.003,235.24,"charizard-4-130-holo",182.81,140.34],
+    ["card:base4|5/130|Holo|null|null|null","Clefable","5/130",22.47,-2,-1.5,0,4,0,"wotc",0.006,15.09,"clefable-5-130-holo",11.58,9.18],
+    ["card:base4|7/130|Holo|null|null|null","Gyarados","7/130",29.47,3,-1.4,1,4,7.1,"wotc",0.018,19.73,"gyarados-7-130-holo",14.69,11.76],
+    ["card:base4|20/130|Holo|null|null|null","Zapdos","20/130",27.25,7.9,5.7,1,3,42.9,"wotc",0.029,17.52,"zapdos-20-130-holo",14.96,11.35],
+    ["card:base6|86/110|Reverse Holo|null|null|null","Pikachu","86/110",2376.08,13.1,9,0,4,0,"wotc",0.018,1690.53,"pikachu-86-110-reverse-holo",717.8,621.5],
+    ["card:base6|13/110|Holo|null|null|null","Hitmonlee","13/110",24.48,-14.5,3.6,1,3,42.9,"wotc",0.03,18.21,"hitmonlee-13-110-holo",12.58,11.19],
+    ["card:base6|14/110|Holo|null|null|null","Jolteon","14/110",51.5,8.3,11.9,2,3,185.7,"wotc",0.025,32.13,"jolteon-14-110-holo",25.01,13.67],
+    ["card:base6|5/110|Holo|null|null|null","Dark Dragonite","5/110",129.75,6.8,21.5,0,3,0,"wotc",0.009,78.38,"dark-dragonite-5-110-holo",54.33,36],
+    ["card:base6|108/110|Reverse Holo|null|null|null","Bill","108/110",94.38,-0.8,14.3,1,2,114.3,"wotc",0.025,47.94,"bill-108-110-reverse-holo",41.53,27.23],
+    ["card:base6|11/110|Holo|null|null|null","Gengar","11/110",193.9,4.7,7.4,0,2,0,"wotc",0.015,101.39,"gengar-11-110-holo",68.61,48.04],
+    ["card:base6|12/110|Reverse Holo|null|null|null","Gyarados","12/110",1991.3,98,155.9,0,2,0,"wotc",0.013,1020.6,"gyarados-12-110-reverse-holo",863.93,496.6],
+    ["card:base6|14/110|Reverse Holo|null|null|null","Jolteon","14/110",574.58,10.2,45.5,0,2,0,"wotc",0.023,381.45,"jolteon-14-110-reverse-holo",247.72,203.38],
+    ["card:base6|17/110|Reverse Holo|null|null|null","Ninetales","17/110",424.33,33.6,58.4,0,2,0,"wotc",0.017,255.85,"ninetales-17-110-reverse-holo",173.39,120.37],
+    ["card:base6|29/110|Reverse Holo|null|null|null","Mewtwo","29/110",1933.71,13.9,90.2,0,2,0,"wotc",0.024,1645.17,"mewtwo-29-110-reverse-holo",776.4,753.11],
+    ["card:base6|38/110|Reverse Holo|null|null|null","Dark Dragonair","38/110",516.7,10.5,48.2,0,2,0,"wotc",0.036,316.33,"dark-dragonair-38-110-reverse-holo",217.61,192.65],
+    ["card:base6|4/110|Holo|null|null|null","Dark Blastoise","4/110",107.04,15,13.6,0,2,0,"wotc",0.006,65.26,"dark-blastoise-4-110-holo",41.99,27.19],
+    ["card:base6|46/110|Reverse Holo|null|null|null","Haunter","46/110",544.18,9,61.8,0,2,0,"wotc",0.045,347.55,"haunter-46-110-reverse-holo",323.89,231.44],
+    ["card:base6|49/110|Reverse Holo|null|null|null","Kadabra","49/110",242.28,8.3,-1,0,2,0,"wotc",0.016,164.51,"kadabra-49-110-reverse-holo",113.6,90.58],
+    ["card:base6|57/110|Reverse Holo|null|null|null","Omanyte","57/110",183.77,30.3,52.5,1,2,114.3,"wotc",0.056,124.15,"omanyte-57-110-reverse-holo",90.33,65.09],
+    ["card:base6|7/110|Holo|null|null|null","Dark Raichu","7/110",58.62,-1,-6.4,0,2,0,"wotc",0.01,37.36,"dark-raichu-7-110-holo",31.88,25.79],
+    ["card:base6|9/110|Holo|null|null|null","Dark Vaporeon","9/110",99.56,-8.4,5.4,0,2,0,"wotc",0.015,51.73,"dark-vaporeon-9-110-holo",40.55,27.24],
+    ["card:base6|92/110|Reverse Holo|null|null|null","Seel","92/110",178.95,21.5,48.4,0,2,0,"wotc",0.036,119.58,"seel-92-110-reverse-holo",83.79,58.86],
+    ["card:base6|96/110|Reverse Holo|null|null|null","Tentacool","96/110",188.52,2.8,90.3,0,2,0,"wotc",0.02,112.98,"tentacool-96-110-reverse-holo",75.68,63.58],
+    ["card:base4|20/130|Holo|null|PSA|9","Zapdos","20/130",163.84,3,63.8,1,3,42.9,"wotc",null,null,"zapdos-20-130-holo-psa-9",null,null],
+    ["card:base4|13/130|Holo|null|PSA|9","Ninetales","13/130",138.51,0,0.1,0,2,null,"wotc",null,null,"ninetales-13-130-holo-psa-9",null,null],
+    ["card:base4|15/130|Holo|null|PSA|9","Poliwrath","15/130",78.33,12.1,17.3,1,2,114.3,"wotc",null,null,"poliwrath-15-130-holo-psa-9",null,null],
+    ["card:base4|18/130|Holo|null|PSA|9","Venusaur","18/130",269.47,0,-2,0,2,null,"wotc",null,null,"venusaur-18-130-holo-psa-9",null,null],
+    ["card:base4|4/130|Holo|null|PSA|9","Charizard","4/130",1924.04,4.5,34.1,1,2,114.3,"wotc",null,null,"charizard-4-130-holo-psa-9",null,null],
+    ["card:base4|7/130|Holo|null|PSA|9","Gyarados","7/130",138.33,0,2.5,1,2,114.3,"wotc",null,null,"gyarados-7-130-holo-psa-9",null,null],
+    ["card:base6|107/110|Reverse Holo|null|PSA|9","Energy Retrieval","107/110",775.32,0,20.1,0,3,null,"wotc",null,null,"energy-retrieval-107-110-reverse-holo-psa-9",null,null],
+    ["card:base6|37/110|Reverse Holo|null|PSA|9","Charmeleon","37/110",4980.71,0,94.7,0,3,null,"wotc",null,null,"charmeleon-37-110-reverse-holo-psa-9",null,null],
+    ["card:base6|38/110|Reverse Holo|null|PSA|9","Dark Dragonair","38/110",4232.6,-25.6,171.5,0,3,0,"wotc",null,null,"dark-dragonair-38-110-reverse-holo-psa-9",null,null],
+    ["card:base6|15/110|Reverse Holo|null|PSA|9","Machamp","15/110",2458.52,0,42.2,0,2,null,"wotc",null,null,"machamp-15-110-reverse-holo-psa-9",null,null],
+    ["card:base6|33/110|Reverse Holo|null|PSA|9","Pidgeot","33/110",1279.98,1.3,7.1,0,2,0,"wotc",null,null,"pidgeot-33-110-reverse-holo-psa-9",null,null],
+    ["card:base6|55/110|Reverse Holo|null|PSA|9","Nidorina","55/110",956.76,0,84.6,0,2,null,"wotc",null,null,"nidorina-55-110-reverse-holo-psa-9",null,null],
+    ["card:base6|56/110|Reverse Holo|null|PSA|9","Nidorino","56/110",1222.1,0,163.8,0,2,null,"wotc",null,null,"nidorino-56-110-reverse-holo-psa-9",null,null],
+    ["card:base6|63/110|Reverse Holo|null|PSA|9","Seadra","63/110",906.84,0,17.7,0,2,null,"wotc",null,null,"seadra-63-110-reverse-holo-psa-9",null,null],
+    ["card:base6|81/110|Reverse Holo|null|PSA|9","Mankey","81/110",1344.77,-19.4,169.5,0,2,0,"wotc",null,null,"mankey-81-110-reverse-holo-psa-9",null,null]
+  ]
+}
