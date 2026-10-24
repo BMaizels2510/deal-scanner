@@ -7,6 +7,8 @@
 binding = "DB"
 database_name = "deal-scanner"
 database_id = "2e7fb03e-8d7f-409c-b58b-b71751398afb"
+[observability]
+enabled = true
 
 # Scan eBay every 5 minutes. Daily housekeeping runs on the first scan after 7am; the digest after DIGEST_HOUR (UK time).
 [triggers]
