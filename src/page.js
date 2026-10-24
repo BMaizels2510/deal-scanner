@@ -303,6 +303,7 @@ function depth(d){
   return html+'</div>';
 }
 
+function reasonText(r){ const [k,dt]=String(r||"").split(":"); return (DATA.reasons[k]||k)+(dt?" ("+dt+")":""); }
 function reviewBar(d){
   const v=d.review&&d.review.verdict, open=v==="bad";
   const id=esc(d.item_id);
@@ -312,8 +313,14 @@ function reviewBar(d){
     '<button class="btn small fake" data-rv="fake" data-id="'+id+'" aria-pressed="'+(v==="fake")+'">🚩 Fake card</button>'+
     (v?'<button class="btn small" data-rv="" data-id="'+id+'">Clear</button>':'');
   if(open){
-    h+='<div class="reasons" role="group" aria-label="Why was it wrong?">'+Object.entries(DATA.reasons).map(([k,l])=>'<button data-reason="'+k+'" data-id="'+id+'" aria-pressed="'+(d.review.reason===k)+'">'+esc(l)+'</button>').join("")+
-      '<input type="text" placeholder="Note (optional): what was it really?" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
+    const list=(DATA.reasonsByKind||{})[d.kind]||[];
+    const [rk,rd]=String(d.review.reason||"").split(":");
+    h+='<div class="reasons" role="group" aria-label="Why was it wrong?"><span class="q">Why? ('+(d.kind==="slab"?"graded card":d.kind==="sealed"?"sealed":"raw card")+')</span>'+
+      list.map(([k,l])=>'<button data-reason="'+k+'" data-id="'+id+'" aria-pressed="'+(rk===k)+'">'+esc(l)+'</button>').join("")+'</div>';
+    const pick=list.find(x=>x[0]===rk&&x[2]);
+    if(pick) h+='<div class="reasons" role="group" aria-label="Detail"><span class="q">'+(rk==="condition"?"Actual condition:":rk==="graded"||rk==="wrong_grader"?"Graded by:":rk==="wrong_grade"?"Actual grade:":"Which?")+'</span>'+
+      pick[2].map(o=>'<button data-reason="'+rk+':'+esc(o)+'" data-id="'+id+'" aria-pressed="'+(rd===o)+'">'+esc(o)+'</button>').join("")+'</div>';
+    h+='<div class="reasons"><input type="text" placeholder="Note (optional): what was it really?'+(rk==="graded"||rk==="wrong_grade"?" e.g. ACE 9":"")+'" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
   }
   if(v==="fake") h+='<div class="reasons"><input type="text" placeholder="What gave it away? (optional)" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
   return h+'</div>';
@@ -344,7 +351,7 @@ function card(d){
   const feeTxt=d.account_type==="INDIVIDUAL"?(d.fee_included?"incl. in price":"added"):d.account_type==="BUSINESS"?"none (business)":"check listing";
   const rv=d.review;
   const st=(d.status==="bought"?'<span class="tag bought">Bought</span>':"")+
-    (rv?(rv.verdict==="good"?'<span class="tag good">✅ Right match</span>':rv.verdict==="fake"?'<span class="tag warn">🚩 Fake</span>':'<span class="tag bad">❌ Wrong'+(rv.reason?": "+esc(DATA.reasons[rv.reason]||rv.reason):"")+'</span>'):"")+
+    (rv?(rv.verdict==="good"?'<span class="tag good">✅ Right match</span>':rv.verdict==="fake"?'<span class="tag warn">🚩 Fake</span>':'<span class="tag bad">❌ Wrong'+(rv.reason?": "+esc(reasonText(rv.reason)):"")+'</span>'):"")+
     (d.recheck&&d.recheck.now!=="same"?'<span class="tag '+(rv&&rv.verdict==="bad"?"fixed":"warn")+'">Today’s rules: '+(d.recheck.now==="rejected"?"turned away ("+esc(d.recheck.reason)+")":"now "+esc(d.recheck.product))+'</span>':"");
   const gone=d.gone_hours!=null?'<span class="tag bad">Gone after '+hours(d.gone_hours)+'</span>':"";
   const cert=d.cert_status==="verified"?'<span class="tag good">PSA cert verified</span>':d.cert_status==="mismatch"?'<span class="tag bad">PSA cert mismatch</span>':d.cert_status==="no cert"?'<span class="tag warn">No cert number shown</span>':d.cert?'<span class="tag">Cert '+esc(d.cert)+'</span>':"";
@@ -477,10 +484,10 @@ async function sendReview(d, body){
   const r=await fetch("/api/deals/"+encodeURIComponent(d.item_id)+"/review",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   if(!r.ok) throw new Error(await r.text());
   const a=DATA.accuracy, was=d.review&&d.review.verdict;
-  if(was){ a.reviewed--; a[was]--; if(was==="bad"){ const k=d.review.reason||"unspecified"; if(a.byReason[k]&&!--a.byReason[k]) delete a.byReason[k]; if(d.recheck&&d.recheck.now!=="same") a.fixed--; } if(d.instant){ a.alertsReviewed--; if(was==="good") a.alertsGood--; } }
+  if(was){ a.reviewed--; a[was]--; if(was==="bad"){ const k=d.review.reason||"unspecified"; const k2=k.split(":")[0]; if(a.byReason[k2]&&!--a.byReason[k2]) delete a.byReason[k2]; if(d.recheck&&d.recheck.now!=="same") a.fixed--; } if(d.instant){ a.alertsReviewed--; if(was==="good") a.alertsGood--; } }
   d.review=body.verdict?{verdict:body.verdict,reason:body.reason||null,note:body.note||null}:null;
   const now=d.review&&d.review.verdict;
-  if(now){ a.reviewed++; a[now]++; if(now==="bad"){ const k=d.review.reason||"unspecified"; a.byReason[k]=(a.byReason[k]||0)+1; if(d.recheck&&d.recheck.now!=="same") a.fixed++; } if(d.instant){ a.alertsReviewed++; if(now==="good") a.alertsGood++; } }
+  if(now){ a.reviewed++; a[now]++; if(now==="bad"){ const k=(d.review.reason||"unspecified").split(":")[0]; a.byReason[k]=(a.byReason[k]||0)+1; if(d.recheck&&d.recheck.now!=="same") a.fixed++; } if(d.instant){ a.alertsReviewed++; if(now==="good") a.alertsGood++; } }
   if(d.status!=="bought") d.status=now&&now!=="good"?"bad":"new";
 }
 document.getElementById("list").addEventListener("change",async e=>{

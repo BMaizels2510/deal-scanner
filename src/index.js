@@ -7,6 +7,9 @@
 //   GET  /api/review/export       every reviewed deal as CSV, with what today's rules make of it
 //   POST /api/admin/scan          run a scan now (admin key); ?all=1 searches every set
 //   POST /api/admin/digest        send today's Telegram digest now (admin key)
+//   POST /api/admin/telegram      connect the bot to this worker so you can message it hunt commands (admin key, once)
+//   POST /api/admin/hunt?q=sir    run a hunt from the command line (admin key); results go to Telegram
+//   POST /telegram                Telegram webhook (secret header)
 //   POST /api/admin/maintenance   store today's market index now (admin key)
 import { runScan, sendDigest, dailyMaintenance, londonParts, loadSets, loadProducts, categoryIndex, watchList } from "./scan.js";
 import { renderReport, renderLogin } from "./page.js";
@@ -14,7 +17,15 @@ import { config, ladderStats, soldTrend, holdEstimate } from "./score.js";
 import { refreshLadder, loadLadders, loadSold } from "./ladder.js";
 import { buildIndex } from "./match.js";
 import { getToken } from "./ebay.js";
-import { reviewData, saveReview, exportCsv, REVIEW_REASONS } from "./review.js";
+import { reviewData, saveReview, exportCsv, REVIEW_REASONS, REASONS_BY_KIND } from "./review.js";
+import { runHunt } from "./hunt.js";
+import { setupTelegram, sendText } from "./telegram.js";
+
+// Telegram's webhook secret, derived from your ADMIN_KEY (letters and digits only, as Telegram requires).
+async function webhookSecret(env) {
+  const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("tg:" + (env.ADMIN_KEY || "")));
+  return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 48);
+}
 
 const html = (body, status = 200, headers = {}) =>
   new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", ...headers } });
@@ -88,7 +99,7 @@ async function reportData(env, day) {
     })),
     market: Object.entries(idx).map(([c, v]) => ({ category: c, t7: v.t7, t30: v.t30, n: counts[c], prev30: prev[c] ?? null, speedH: median(speed[c] || []) })),
     watch: watchList(products, cfg, 6).map(p => ({ name: p.name, grade: p.grader ? `${p.grader} ${p.grade}` : (p.kind === "sealed" ? "Sealed" : "Raw"), market: p.market, src: p.src, t7: p.t7, s7: p.s7, url: p.pulse_url })),
-    rejects, accuracy, reasons: REVIEW_REASONS,
+    rejects, accuracy, reasons: REVIEW_REASONS, reasonsByKind: REASONS_BY_KIND,
     lastScan: meta.last_scan || null,
     lastError: meta.last_error && (!meta.last_scan || meta.last_error.slice(0, 24) >= meta.last_scan.slice(0, 24)) ? meta.last_error : null,
     marketUpdated: mk?.u || null,
@@ -99,15 +110,31 @@ async function reportData(env, day) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const path = url.pathname;
 
     if (path === "/health") return json({ ok: true });
 
+    // Telegram messages to the bot: hunt commands. Only your own chat is listened to.
+    if (path === "/telegram" && req.method === "POST") {
+      if (!env.ADMIN_KEY || req.headers.get("X-Telegram-Bot-Api-Secret-Token") !== await webhookSecret(env)) return new Response("forbidden", { status: 403 });
+      const update = await req.json().catch(() => null);
+      const msg = update?.message;
+      if (msg?.text && String(msg.chat?.id) === String(env.TELEGRAM_CHAT_ID)) {
+        ctx.waitUntil(runHunt(env, msg.text).catch(e => sendText(env, `Hunt failed: ${String(e.message || e).slice(0, 200)}`)));
+      }
+      return new Response("ok");
+    }
+
     if (path.startsWith("/api/admin/")) {
       if (req.method !== "POST" || !safeEqual(req.headers.get("x-admin-key") || "", env.ADMIN_KEY || "")) return json({ error: "Not allowed" }, 403);
       if (path === "/api/admin/scan") return json(await runScan(env, { all: url.searchParams.get("all") === "1" }).catch(e => ({ error: String(e.message || e) })));
+      if (path === "/api/admin/telegram") {
+        if (!env.REPORT_URL) return json({ error: "Set REPORT_URL in wrangler.toml first" }, 400);
+        return json(await setupTelegram(env, env.REPORT_URL.replace(/\/$/, "") + "/telegram", await webhookSecret(env)));
+      }
+      if (path === "/api/admin/hunt") return json(await runHunt(env, url.searchParams.get("q") || "help") ?? { ok: true });
       if (path === "/api/admin/digest") return json({ sent: await sendDigest(env, londonParts().day) });
       if (path === "/api/admin/maintenance") { await dailyMaintenance(env, londonParts().day); return json({ ok: true }); }
       if (path === "/api/admin/ladder") {

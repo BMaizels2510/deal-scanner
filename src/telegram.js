@@ -52,3 +52,41 @@ export async function sendText(env, text, button) {
   if (button) body.reply_markup = { inline_keyboard: [[button]] };
   return call(env, "sendMessage", body);
 }
+
+// One hunt find: photo, the numbers and a button to the listing.
+export async function sendHuntCard(env, h, sets) {
+  if (!telegramReady(env)) return false;
+  const p = h.p;
+  const grade = p.grader ? ` · ${p.grader} ${p.grade}` : p.kind === "raw" ? ` · ${h.condCode}${h.condStated ? "" : " (condition not in title, priced as " + h.condCode + ")"}` : "";
+  const lines = [
+    `<b>🔎 ${esc(p.name)}${esc(grade)}</b>`,
+    [sets[p.set_id]?.name, p.number].filter(Boolean).map(esc).join(" · "),
+    `<i>${esc(String(h.i.title).slice(0, 100))}</i>`,
+    `${gbp(h.price)}${h.post != null ? ` + ${gbp(h.post)} post` : " (check postage)"} = <b>${gbp(h.calc.total)}</b>`,
+    `Pulse ${p.kind === "raw" ? h.condCode + " " : ""}${gbp(h.market)} → <b>${gbp0(h.calc.net)} under (${h.calc.pct.toFixed(1)}%)</b>`,
+    `${p.s30 ?? 0} sales in 30 days · ${esc(h.s.label === "Neutral" ? "Opportunity" : h.s.label)}`,
+  ];
+  const caption = lines.filter(Boolean).join("\n").slice(0, 1020);
+  const reply_markup = { inline_keyboard: [[{ text: "Open on eBay", url: h.i.itemWebUrl }]] };
+  const img = h.i.image?.imageUrl ? h.i.image.imageUrl.replace(/s-l\d+\./, "s-l500.") : null;
+  if (img && await call(env, "sendPhoto", { chat_id: env.TELEGRAM_CHAT_ID, photo: img, caption, parse_mode: "HTML", reply_markup })) return true;
+  return call(env, "sendMessage", { chat_id: env.TELEGRAM_CHAT_ID, text: caption, parse_mode: "HTML", reply_markup, disable_web_page_preview: true });
+}
+
+// Telegram setup: point the bot at the worker and list the hunt commands in its menu.
+export async function setupTelegram(env, url, secret) {
+  const res = [];
+  for (const [method, body] of [
+    ["setWebhook", { url, secret_token: secret, allowed_updates: ["message"], drop_pending_updates: true }],
+    ["setMyCommands", { commands: [
+      ["sir", "Hunt modern Special Illustration Rares"], ["alt", "Hunt alt arts"], ["promos", "Hunt promos"],
+      ["ex", "Hunt early EX era"], ["goldstars", "Hunt Gold Stars"], ["wotc", "Hunt WOTC holos"],
+      ["ereader", "Hunt Expedition / Aquapolis / Skyridge"], ["packs", "Hunt vintage booster packs"],
+      ["sealed", "Hunt modern sealed"], ["more", "Next batch of the last hunt"], ["help", "What the bot can do"],
+    ].map(([command, description]) => ({ command, description })) }],
+  ]) {
+    const r = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    res.push({ method, ...(await r.json().catch(() => ({ ok: r.ok }))) });
+  }
+  return res;
+}

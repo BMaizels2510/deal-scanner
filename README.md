@@ -44,6 +44,28 @@ eBay also tells you how hard the resale will be:
 - **Time to sell:** listings queued at or below Pulse, divided by sales per day (Pulse, plus our sold record). Under a week is a quick flip, over a month a long hold, and the score moves accordingly. Each deal also shows resale profit per day held.
 - **Sales stalling:** this week's sales well under the usual pace, with the price not rising, costs 10 points. A cheap listing on a card nobody is buying is a high-risk buy.
 
+## Hunting on demand from Telegram
+
+Message the bot a category or a name and it checks every current UK listing of those cards right now, cheapest first, then sends the best under-market finds: the top 5 as photo cards, the rest as a list.
+
+| Send | Hunts |
+|---|---|
+| `sir` | Modern Special Illustration Rares |
+| `alt` | Alt arts |
+| `promos` | Promos, every era |
+| `ex` | Early EX era ex cards |
+| `goldstars` | Gold Stars ☆ |
+| `wotc` | WOTC holos |
+| `ereader` | Expedition, Aquapolis, Skyridge |
+| `packs` | Vintage booster packs |
+| `sealed` | Modern ETBs, boxes, bundles |
+| any name | e.g. `fossil`, `151`, `charizard`, `umbreon psa 10` |
+| `more` | The next batch of the last hunt |
+
+Each message checks the 24 most-traded cards in the group (one eBay search each, inside Cloudflare's free per-request limit); `more` continues. Hunts are a quick check from listing titles: no description, seller or cert lookups, so open each one before buying.
+
+**One-time setup** after deploying: `curl.exe -X POST -H "x-admin-key: YOUR_ADMIN_KEY" https://<your worker>/api/admin/telegram`. That points the bot at the worker and adds the commands to its menu. The bot only answers your own chat (`TELEGRAM_CHAT_ID`).
+
 ## Card condition (raw cards)
 
 The scanner reads the condition from the seller's **Card Condition** field on the listing first, then from the title, then checks it against the seller's own **description** (`src/condition.js`). The description is scanned against a word bank of flaws (whitening, edge wear, scratches, scuffs, dents, bows, lifts, fading, creases, water damage, ink…), softened by "slight / minor / light", hardened by "heavy / multiple", ignored when negated ("no scratches") or in postage text. If the description admits to more than the seller claimed, the lower condition wins and the deal loses 8 confidence. "Judge from the photos" lowers confidence too. Condition words it recognises: NM / Near Mint, LP / Lightly Played / Excellent, MP / Moderately Played / Played, HP / Heavily Played / Poor, DMG / Damaged / Creased. Pulse's own price for that condition is the market (Pulse has NM, LP, MP and HP prices). Damaged has no Pulse price, so it's valued at 60% of the HP price, flagged as an estimate and loses 10 confidence. A listing that states no condition anywhere is priced as LP and loses 5 confidence. Grading plays are only shown for NM cards, and the listing ladder only compares copies in the same condition.

@@ -20,7 +20,7 @@
     },
     "wotc": {
       "name": "WOTC vintage",
-      "rule": "Wizards-era holos (incl. Base Set 2 and Legendary Collection reverse holos), raw and PSA 9, 1st Edition tracked separately"
+      "rule": "Wizards-era holos (incl. Base Set 2 and Legendary Collection reverse holos), raw and PSA 9, 1st Edition tracked separately; e-Reader era (Expedition, Aquapolis, Skyridge) included"
     },
     "sealed": {
       "name": "Sealed",
@@ -308,6 +308,37 @@
       "q": "neo genesis",
       "vintage": true,
       "sq": "neo genesis"
+    },
+    "ecard1": {
+      "name": "Expedition Base Set",
+      "q": "expedition",
+      "vintage": true
+    },
+    "ecard2": {
+      "name": "Aquapolis",
+      "q": "aquapolis",
+      "vintage": true
+    },
+    "ecard3": {
+      "name": "Skyridge",
+      "q": "skyridge",
+      "vintage": true
+    },
+    "ex8": {
+      "name": "EX Deoxys",
+      "q": "ex deoxys"
+    },
+    "ex13": {
+      "name": "EX Holon Phantoms",
+      "q": "holon phantoms"
+    },
+    "ex14": {
+      "name": "EX Crystal Guardians",
+      "q": "crystal guardians"
+    },
+    "ex15": {
+      "name": "EX Dragon Frontiers",
+      "q": "dragon frontiers"
     }
   },
   "columns": [
@@ -658,6 +689,62 @@
     ["sealed:me04|Chaos Rising Booster Pack","Chaos Rising Booster Pack",null,6.74,2,19.7,8,41,-16.4,"sealed",null,null,"chaos-rising-booster-pack",null,null],
     ["sealed:me02|Phantasmal Flames Booster Pack","Phantasmal Flames Booster Pack",null,9.99,-1.5,12,3,14,-8.2,"sealed",null,null,"phantasmal-flames-booster-pack",null,null],
     ["sealed:m1|Mega Evolution Booster Pack","Mega Evolution Booster Pack",null,8.32,-12.5,-1.2,2,13,-34.1,"sealed",null,null,"mega-evolution-booster-pack",null,null],
-    ["sealed:swsh7|Evolving Skies Booster Pack","Evolving Skies Booster Pack",null,29.75,0.4,1.8,5,17,26.1,"sealed",null,null,"evolving-skies-booster-pack",null,null]
+    ["sealed:swsh7|Evolving Skies Booster Pack","Evolving Skies Booster Pack",null,29.75,0.4,1.8,5,17,26.1,"sealed",null,null,"evolving-skies-booster-pack",null,null],
+    ["card:ecard3|84/144|null|null|null|null","Pikachu","84/144",146.06,-1,7.7,0,6,null,"wotc",null,null,"pikachu-84-144",null,null],
+    ["card:ecard3|100/144|null|null|null|null","Snorlax","100/144",97.56,-0.1,11.2,0,5,null,"wotc",null,null,"snorlax-100-144",null,null],
+    ["card:ecard3|21/144|null|null|null|null","Moltres","21/144",50.23,-0.2,40.5,2,5,71.4,"wotc",null,null,"moltres-21-144",null,null],
+    ["card:ecard3|12/144|null|null|null|null","Houndoom","12/144",54.8,4.1,5.9,1,4,7.1,"wotc",null,null,"houndoom-12-144",null,null],
+    ["card:ecard3|8/144|null|null|null|null","Flareon","8/144",42.86,-1,1.1,1,4,7.1,"wotc",null,null,"flareon-8-144",null,null],
+    ["card:ecard3|88/144|Reverse Holo|null|null|null","Poliwhirl","88/144",143.55,-15.6,-4.2,2,4,114.3,"wotc",null,null,"poliwhirl-88-144-reverse-holo",null,null],
+    ["card:ecard3|10/144|null|null|null|null","Gengar","10/144",369.4,3.2,15.8,1,3,42.9,"wotc",null,null,"gengar-10-144",null,null],
+    ["card:ecard3|27/144|null|null|null|null","Raichu","27/144",87.93,12.8,14.9,1,3,42.9,"wotc",null,null,"raichu-27-144",null,null],
+    ["card:ecard3|32/144|null|null|null|null","Umbreon","32/144",225.86,-4.9,8.5,0,3,0,"wotc",null,null,"umbreon-32-144",null,null],
+    ["card:ecard3|46/144|Reverse Holo|null|null|null","Abra","46/144",114.63,0,-6.8,0,3,null,"wotc",null,null,"abra-46-144-reverse-holo",null,null],
+    ["card:ecard3|51/144|null|null|null|null","Ditto","51/144",52.89,1.8,1.8,1,3,42.9,"wotc",null,null,"ditto-51-144",null,null],
+    ["card:ecard1|8/165|Holo|null|null|null","Cloyster","8/165",117.65,1,11.3,0,4,0,"wotc",null,null,"cloyster-8-165-holo",null,null],
+    ["card:ecard1|97/165|Reverse Holo|null|null|null","Charmander","97/165",127.98,2.8,27.2,0,4,0,"wotc",null,null,"charmander-97-165-reverse-holo",null,null],
+    ["card:ecard1|40/165|null|null|null|null","Charizard","40/165",112.72,-5.4,25.9,0,3,0,"wotc",null,null,"charizard-40-165",null,null],
+    ["card:ecard1|66/165|null|null|null|null","Tyranitar","66/165",51.99,1,-4.8,2,3,185.7,"wotc",null,null,"tyranitar-66-165",null,null],
+    ["card:ecard1|1/165|Holo|null|null|null","Alakazam","1/165",258.59,4.1,-4.1,1,2,114.3,"wotc",null,null,"alakazam-1-165-holo",null,null],
+    ["card:ecard1|12/165|Reverse Holo|null|null|null","Feraligatr","12/165",114.06,8.8,4.6,0,2,0,"wotc",null,null,"feraligatr-12-165-reverse-holo",null,null],
+    ["card:ecard1|131/165|Reverse Holo|null|null|null","Squirtle","131/165",291.03,3.1,0.4,1,2,114.3,"wotc",null,null,"squirtle-131-165-reverse-holo",null,null],
+    ["card:ecard1|16/165|Holo|null|null|null","Machamp","16/165",98.72,-1,1.9,0,2,0,"wotc",null,null,"machamp-16-165-holo",null,null],
+    ["card:ecard1|18/165|Holo|null|null|null","Meganium","18/165",124.73,-2,18.5,0,2,0,"wotc",null,null,"meganium-18-165-holo",null,null],
+    ["card:ecard1|25/165|Holo|null|null|null","Raichu","25/165",191.67,5.1,10.1,0,2,0,"wotc",null,null,"raichu-25-165-holo",null,null],
+    ["card:ecard2|41/147|null|null|null|null","Umbreon","41/147",118.77,2,0,0,4,0,"wotc",null,null,"umbreon-41-147",null,null],
+    ["card:ecard3|10/144|null|null|PSA|9","Gengar","10/144",929.23,0,42.9,0,6,null,"wotc",null,null,"gengar-10-144-psa-9",null,null],
+    ["card:ecard3|H12/H32|Holo|null|PSA|9","Jolteon","H12/H32",1477.77,45.8,74.3,1,4,7.1,"wotc",null,null,"jolteon-h12-h32-holo-psa-9",null,null],
+    ["card:ecard3|H22/H32|Holo|null|PSA|9","Piloswine","H22/H32",822.77,30.9,95.1,2,4,114.3,"wotc",null,null,"piloswine-h22-h32-holo-psa-9",null,null],
+    ["card:ecard1|15/165|Holo|null|PSA|9","Kingler","15/165",594.8,0,104.9,0,3,null,"wotc",null,null,"kingler-15-165-holo-psa-9",null,null],
+    ["card:ecard1|24/165|Holo|null|PSA|9","Poliwrath","24/165",2157.97,0,153.2,0,3,null,"wotc",null,null,"poliwrath-24-165-holo-psa-9",null,null],
+    ["card:ecard1|48/165|null|null|PSA|9","Gengar","48/165",513.42,-1.5,37.3,2,3,185.7,"wotc",null,null,"gengar-48-165-psa-9",null,null],
+    ["card:ecard3|32/144|null|null|PSA|9","Umbreon","32/144",676.56,-5.7,25.1,0,3,0,"wotc",null,null,"umbreon-32-144-psa-9",null,null],
+    ["card:ecard1|39/165|null|null|PSA|9","Charizard","39/165",511.14,14.5,55.1,1,2,114.3,"wotc",null,null,"charizard-39-165-psa-9",null,null],
+    ["card:ecard1|40/165|null|null|PSA|9","Charizard","40/165",480.35,17.1,106.3,1,2,114.3,"wotc",null,null,"charizard-40-165-psa-9",null,null],
+    ["card:ecard1|39/165|Reverse Holo|null|PSA|9","Charizard","39/165",3449.89,123.7,123.7,2,2,0,"wotc",null,null,"charizard-39-165-reverse-holo-psa-9",null,null],
+    ["card:ex8|107/107|Holo|null|null|null","Rayquaza ☆","107/107",20765.55,-7.4,-3.1,0,0,null,"ex_era",null,null,"rayquaza-107-107-holo",null,null],
+    ["card:base5|108/109|Holo|null|null|null","Torchic ☆","108/109",8572.92,0,20.9,0,0,null,"ex_era",null,null,"torchic-108-109-holo",null,null],
+    ["card:ex15|100/101|Holo|null|null|null","Charizard ☆","100/101",8448.64,-6.1,13.2,0,0,null,"ex_era",null,null,"charizard-100-101-holo",null,null],
+    ["card:base5|107/109|Holo|null|null|null","Mudkip ☆","107/109",8177.38,-10.8,15,0,0,null,"ex_era",null,null,"mudkip-107-109-holo",null,null],
+    ["card:ex13|102/110|Holo|null|null|null","Gyarados ☆","102/110",7426.46,6,78.1,0,0,null,"ex_era",null,null,"gyarados-102-110-holo",null,null],
+    ["card:ex13|103/110|Holo|null|null|null","Mewtwo ☆","103/110",5805.62,6.2,37,0,0,null,"ex_era",null,null,"mewtwo-103-110-holo",null,null],
+    ["card:ex15|101/101|Holo|null|null|null","Mew ☆","101/101",5353.32,0.4,14,0,0,null,"ex_era",null,null,"mew-101-101-holo-1",null,null],
+    ["card:ex13|104/110|Holo|null|null|null","Pikachu ☆","104/110",5280.51,0,8.3,0,0,null,"ex_era",null,null,"pikachu-104-110-holo",null,null],
+    ["card:ex8|106/107|Holo|null|null|null","Latios ☆","106/107",5216.64,0,13.9,0,0,null,"ex_era",null,null,"latios-106-107-holo",null,null],
+    ["card:ex8|105/107|Holo|null|null|null","Latias ☆","105/107",3864.37,0,-3.4,0,0,null,"ex_era",null,null,"latias-105-107-holo-1",null,null],
+    ["card:base5|109/109|Holo|null|null|null","Treecko ☆","109/109",3467.19,-1.4,8.2,0,0,null,"ex_era",null,null,"treecko-109-109-holo",null,null],
+    ["card:ex11|112/113|Holo|null|null|null","Kyogre ☆","112/113",2936.26,0,47.4,0,0,null,"ex_era",null,null,"kyogre-112-113-holo",null,null],
+    ["card:ex11|113/113|Holo|null|null|null","Metagross ☆","113/113",2826.28,0,15,0,0,null,"ex_era",null,null,"metagross-113-113-holo",null,null],
+    ["card:ex11|111/113|Holo|null|null|null","Groudon ☆","111/113",2739.13,0,35.5,0,0,null,"ex_era",null,null,"groudon-111-113-holo",null,null],
+    ["card:ex14|100/100|Holo|null|null|null","Celebi ☆","100/100",2087.62,11,25.6,0,0,null,"ex_era",null,null,"celebi-100-100-holo",null,null],
+    ["card:ex16|101/108|Holo|null|null|null","Jolteon ☆","101/108",1976.98,1.9,40.3,0,0,null,"ex_era",null,null,"jolteon-101-108-holo-1",null,null],
+    ["card:ex14|99/100|Holo|null|null|null","Alakazam ☆","99/100",1868.19,-23.1,28,0,0,null,"ex_era",null,null,"alakazam-99-100-holo",null,null],
+    ["card:ex16|102/108|Holo|null|null|null","Vaporeon ☆","102/108",1691.69,-2,3.2,0,0,null,"ex_era",null,null,"vaporeon-102-108-holo",null,null],
+    ["card:ex16|100/108|Holo|null|null|null","Flareon ☆","100/108",1552.16,0,9.3,0,0,null,"ex_era",null,null,"flareon-100-108-holo",null,null],
+    ["card:ex12|90/92|Holo|null|null|null","Regice ☆","90/92",1512.87,5.4,35.3,0,0,null,"ex_era",null,null,"regice-90-92-holo",null,null],
+    ["card:ex10|114/115|Holo|null|null|null","Raikou ☆","114/115",1436.41,39.6,58.7,0,0,null,"ex_era",null,null,"raikou-114-115-holo",null,null],
+    ["card:ex12|91/92|Holo|null|null|null","Regirock ☆","91/92",1371.73,0,31.9,0,0,null,"ex_era",null,null,"regirock-91-92-holo",null,null],
+    ["card:ex12|92/92|Holo|null|null|null","Registeel ☆","92/92",1323.52,3.5,10.5,0,0,null,"ex_era",null,null,"registeel-92-92-holo",null,null],
+    ["card:ex10|113/115|Holo|null|null|null","Entei ☆","113/115",1269.89,0,8.1,0,0,null,"ex_era",null,null,"entei-113-115-holo",null,null]
   ]
 }

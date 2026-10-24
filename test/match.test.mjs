@@ -251,3 +251,17 @@ test("unsealed boxes are priced as loose packs", () => {
   is(["sv8"], "Surging Sparks Booster Box Sealed", "sealed:sv8|Surging Sparks Booster Box");
   no(["sv8"], "Surging Sparks booster pack sealed", /modern packs not watched|not in catalogue/);
 });
+
+import { resolveHunt } from "../src/hunt.js";
+test("hunt commands resolve to the right cards", () => {
+  const ps = products.map(p => ({ ...p, vintage: !!sets[p.set_id]?.vintage }));
+  const r = t => resolveHunt(t, ps, sets);
+  assert.ok(r("/sir").list.every(p => p.category === "sir") && r("sir").list.length > 40);
+  assert.ok(r("Gold Stars").list.length >= 20 && r("goldstars").list.every(p => /☆/.test(p.name)));
+  assert.ok(r("ereader").list.every(p => ["ecard1", "ecard2", "ecard3"].includes(p.set_id)));
+  assert.ok(r("/packs").list.every(p => /booster pack/i.test(p.name)));
+  assert.ok(r("fossil").list.length > 0 && r("fossil").list.every(p => p.set_id === "base3"));
+  assert.ok(r("charizard").list.length > 5);
+  assert.ok(r("umbreon psa 10").list.every(p => p.grader === "PSA" && p.grade === "10"));
+  assert.equal(r("zzzz nothing"), null);
+});
