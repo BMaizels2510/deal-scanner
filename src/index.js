@@ -103,7 +103,7 @@ export default {
 
     if (path.startsWith("/api/admin/")) {
       if (req.method !== "POST" || !safeEqual(req.headers.get("x-admin-key") || "", env.ADMIN_KEY || "")) return json({ error: "Not allowed" }, 403);
-      if (path === "/api/admin/scan") return json(await runScan(env, { all: url.searchParams.get("all") === "1" }));
+      if (path === "/api/admin/scan") return json(await runScan(env, { all: url.searchParams.get("all") === "1" }).catch(e => ({ error: String(e.message || e) })));
       if (path === "/api/admin/digest") return json({ sent: await sendDigest(env, londonParts().day) });
       if (path === "/api/admin/maintenance") { await dailyMaintenance(env, londonParts().day); return json({ ok: true }); }
       if (path === "/api/admin/ladder") {
