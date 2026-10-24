@@ -1,5 +1,6 @@
 // eBay Browse API client (official API, free developer keys).
 import { mockSearch, mockItem, mockLadder } from "./fixtures.js";
+import { parseCondition } from "./match.js";
 
 const API = "https://api.ebay.com";
 const HEADERS = {
@@ -93,6 +94,17 @@ export function shippingCost(x) {
 
 export function bigImage(url) {
   return url ? url.replace(/s-l\d+\./, "s-l500.") : null;
+}
+
+// The seller's own "Card Condition" field on an ungraded card, when they filled it in.
+export function conditionFromItem(item) {
+  const texts = [];
+  for (const d of item?.conditionDescriptors || []) {
+    if (/condition/i.test(d.name || "")) for (const v of d.values || []) texts.push(v.content || v.value || "");
+  }
+  for (const a of item?.localizedAspects || []) if (/card condition/i.test(a.name || "")) texts.push(a.value || "");
+  for (const t of texts) { const c = parseCondition(t); if (c) return c; }
+  return null;
 }
 
 export function certNumber(item, title) {

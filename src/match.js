@@ -5,7 +5,6 @@ const GLOBAL_REJECT = [
   [/\b(proxy|replica|fake|custom|orica|reprint|unofficial|fan ?made|novelty|art ?card|metal card)\b/, "fake/custom"],
   [/\b(digital|code ?cards?|ptcgo|tcg ?live|online code)\b/, "code card/digital"],
   [/\b(empty|box only|no (cards?|packs?)|display only|case only|tin only|slab only|label only|wrapper only)\b/, "empty/packaging only"],
-  [/\b(damaged|creased|crease|bent|water damage|poor condition|dented|heavily played|\bhp condition)\b/, "damaged"],
   [/read (the )?desc/, "read description"],
   [/\b(choose|pick (your|a|from)|you pick|select your|multi ?listing|lot of|job ?lot|joblot|bundle of|collection of|binder)\b/, "multi-item listing"],
   [/\b(sticker|poster|sleeves?|playmat|plush|figure|deck box|coin|pin badge|jumbo|oversized)\b/, "accessory/jumbo"],
@@ -14,10 +13,29 @@ const NOT_ENGLISH = /\b(japanese|japan|jpn|jp|korean|kor|chinese|chn|s-?chinese|
 const GRADED_WORD = /\b(psa|bgs|beckett|cgc|sgc|ace|tag|graded|slab(bed)?|gem ?mint|pristine)\b/;
 const GRADE_TOKENS = /\b(psa|bgs|beckett|cgc|sgc|ace|tag)\s*(?:gem\s*mint|gem\s*mt|gem|mint|nm-?mt|pristine|black\s*label)?\s*(\d{1,2}(?:\.5)?)\b/g;
 const CRACKED = /\b(cracked|crack|chipped|scuffed slab|broken slab)\b/;
-const CONDITION = /\b(lightly played|moderately played|light play|lp|mp|played|excellent|exc|very good|vg|good condition|scratch(es|ed)?|whitening|wear|worn)\b/;
+const DAMAGE = /\b(damaged|dmg|creased|crease|bent|water damage|poor condition|dented|heavily played)\b/;
+
+// Raw card condition from a title or eBay's "Card Condition" field. NM, LP, MP or DMG; null when not stated.
+const COND_RULES = [
+  ["DMG", /\b(damaged|dmg|creased?|bent|water damage|torn|ripped)\b/],
+  ["HP", /\b(heavily played|heavy play|(?<![0-9] ?)hp|poor( condition)?)\b/],
+  ["MP", /\b(moderately played|moderate play|mp|very good|vg|(?<!(lightly|light|never|un) ?)played)\b/],
+  ["LP", /\b(lightly played|light(ly)? play(ed)?|lp|excellent|exc|good condition|scratch(es|ed)?|whitening|wear|worn)\b/],
+  ["NM", /\b(near mint|nm(\/m|-?mt)?|mint|pack fresh)\b/],
+];
+export const COND_LABEL = { NM: "Near Mint", LP: "Lightly Played", MP: "Moderately Played", HP: "Heavily Played", DMG: "Damaged" };
+export function parseCondition(text) {
+  const t = normalise(text);
+  if (!t) return null;
+  for (const [code, re] of COND_RULES) if (re.test(t)) return code;
+  return null;
+}
 const OPENED = /\b(opened|unsealed|re-?sealed|no shrink|without shrink|loose packs?|weighed|searched|empty)\b/;
 const MULTIPLES = /\b\d+\s*x\b|\bx\s*\d+\b|\b(two|three|four|2|3|4) (etbs|boxes|bundles|cards)\b/;
 const VINTAGE_REPRINT = /\b(celebrations?|classic collection|25th|evolutions|reprint|xy12)\b/;
+// Base Set 2 and Legendary Collection reuse Base Set artwork: a title naming them is never an original Base Set card.
+const BASE_SETS = new Set(["bsu", "bs1s", "bss"]);
+const LATER_BASE = /\b(base set 2|base 2|legendary collection)\b/;
 const STAMP_WORDS = /\b(stamp(ed)?|prize pack|league|winner|staff|pre-?release|professor|error|misprint|holiday calendar)\b/;
 const NAME_STOP = new Set(["ex", "gx", "v", "vmax", "vstar", "mega", "team", "rocket", "the", "with", "and", "origin", "forme", "special", "delivery", "dark", "shining", "grey", "felt", "hat", "star"]);
 
@@ -73,7 +91,7 @@ function wordRe(n) {
   // "199" -> matches "199", "#199", "no. 199" but not "1199" or "199/165"'s denominator side handled elsewhere
   const m = n.match(/^([a-z]*)(\d+)$/);
   const body = m ? `${m[1]}\\s*0*${m[2]}` : n;
-  return new RegExp(`(?<![a-z0-9/])(?:#\\s*|no\\.?\\s*)?${body}(?![0-9])`);
+  return new RegExp(`(?<![a-z0-9/])(?:#\\s*|no\\.?\\s*)?${body}(?![0-9])(?!\\s*\\/)`);
 }
 
 export function buildIndex(products, sets) {
@@ -108,6 +126,8 @@ function numberMatches(spec, parsed, t) {
     if (parsed.fracs.some(f => f.n === spec.n && f.d === spec.d)) return true;
     // "Charizard ex 199 151" style titles: accept the bare number unless the title shows a different card from the same set.
     if (parsed.fracs.some(f => f.d === spec.d && f.n !== spec.n)) return false;
+    // Same number, different set size ("4/130" is Base Set 2, not Base Set's 4/102).
+    if (parsed.fracs.some(f => f.n === spec.n && f.d !== spec.d)) return false;
     return wordRe(spec.n).test(t);
   }
   if (spec.type === "code") return parsed.codes.includes(spec.n);
@@ -130,6 +150,7 @@ function variantProblem(t, p) {
     if (!has && inTitle) return `${name} not watched`;
   }
   if (p._vintage && VINTAGE_REPRINT.test(t)) return "reprint, not original";
+  if (BASE_SETS.has(p.set_id) && LATER_BASE.test(t)) return "Base Set 2 / Legendary Collection, not Base Set";
   return null;
 }
 
@@ -166,6 +187,7 @@ export function matchListing(rawTitle, setIds, index) {
   const cardPool = pool.filter(p => p.kind !== "sealed");
 
   if (SEALED_WORDS.test(t)) {
+    if (DAMAGE.test(t)) return { ok: false, reason: "damaged" };
     if (!sealedPool.length) return { ok: false, reason: "sealed, not watched in this set" };
     return matchSealed(t, sealedPool);
   }
@@ -176,6 +198,7 @@ export function matchListing(rawTitle, setIds, index) {
   const grade = parsed.grades[0] || null;
   if (!grade && GRADED_WORD.test(t)) return { ok: false, reason: "graded but grade unclear" };
   if (grade && CRACKED.test(t)) return { ok: false, reason: "cracked slab" };
+  if (grade && DAMAGE.test(t)) return { ok: false, reason: "damaged slab" };
 
   let cards = cardPool.filter(p => numberMatches(p._num, parsed, t) && p._tokens.some(w => t.includes(w)));
   if (!cards.length) return { ok: false, reason: "card not in catalogue" };
@@ -194,7 +217,6 @@ export function matchListing(rawTitle, setIds, index) {
     const r = pick(cards.filter(p => p.kind === "slab" && p.grader.toLowerCase() === grade.g && p.grade === grade.n));
     return r ? (r.ok ? { ...r, grade } : r) : { ok: false, reason: `${grade.g.toUpperCase()} ${grade.n} not watched for this card` };
   }
-  if (CONDITION.test(t)) return { ok: false, reason: "condition below NM" };
   const r = pick(cards.filter(p => p.kind === "raw"));
-  return r ? (r.ok ? { ...r, grade: null } : r) : { ok: false, reason: "raw copy not watched for this card" };
+  return r ? (r.ok ? { ...r, grade: null, cond: parseCondition(t) } : r) : { ok: false, reason: "raw copy not watched for this card" };
 }

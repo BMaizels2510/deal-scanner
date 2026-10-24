@@ -14,6 +14,7 @@ const L = (id, title, price, post, o = {}) => ({
   _account: o.biz ? "BUSINESS" : "INDIVIDUAL",
   _cert: o.cert || null,
   _sellsAfterLookup: !!o.sells,
+  description: o.desc || null,
 });
 
 const DATA = {
@@ -51,7 +52,7 @@ const DATA = {
     L(5004, "Charizard Base Set 4/102 Holo Rare played", 260, 3),
   ],
   "ex2": [
-    L(6001, "Gardevoir ex 96/100 EX Sandstorm Holo Rare NM", 160, 3, { fb: 88, pct: "100" }),
+    L(6001, "Gardevoir ex 96/100 EX Sandstorm Holo Rare NM", 160, 3, { fb: 88, pct: "100", desc: "<p>The card has a slight bow and a holo scratch as shown in the pictures.</p><p>Please assess the condition from the pictures.</p>" }),
   ],
   "me2pt5": [
     L(7001, "Mega Gengar ex 284/217 SIR PSA 10 Ascended Heroes", 990, 8, { cert: "22334455" }),

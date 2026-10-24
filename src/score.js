@@ -18,6 +18,10 @@ export function config(env = {}) {
     sellPostage: { raw: num(env.SELL_POST_RAW, 2.5), slab: num(env.SELL_POST_SLAB, 4.5), sealed: num(env.SELL_POST_SEALED, 5) },
     maniaMarkupPct: num(env.MANIA_MARKUP_PCT, 5),
     gradingCost: num(env.GRADING_COST, 25),
+    // Raw card condition. Pulse's own LP / MP / HP prices are used when it has them; these shares of NM are the fallback.
+    cond: { NM: 1, LP: num(env.COND_LP, 0.7), MP: num(env.COND_MP, 0.5), HP: num(env.COND_HP, 0.35) },
+    condDmgOfHp: num(env.COND_DMG_OF_HP, 0.6),   // Pulse has no damaged price: damaged = this share of the HP price
+    condUnknown: env.COND_UNKNOWN || "LP",       // how to price a raw card whose condition isn't stated anywhere
   };
 }
 
@@ -58,6 +62,19 @@ export function daysSince(dateStr, now = new Date()) {
   return Math.floor((now - new Date(dateStr + "T00:00:00Z")) / 86400000);
 }
 
+// What a raw card in this condition is worth, as a share of its NM price.
+// Uses Pulse's own price for that condition (p.c_lp / c_mp / c_hp) when it has one.
+export function conditionFactor(p, code, cfg) {
+  if (!code || code === "NM" || !p.market) return { factor: 1, priced: "pulse" };
+  const pulse = { LP: p.c_lp ?? p.lp, MP: p.c_mp, HP: p.c_hp };
+  const ratio = (code === "DMG" ? pulse.HP : pulse[code]) / p.market;
+  if (Number.isFinite(ratio) && ratio > 0) {
+    const f = Math.min(1, ratio) * (code === "DMG" ? cfg.condDmgOfHp : 1);
+    return { factor: f, priced: code === "DMG" ? "estimate" : "pulse" };
+  }
+  return { factor: code === "DMG" ? cfg.cond.HP * cfg.condDmgOfHp : (cfg.cond[code] ?? 1), priced: "estimate" };
+}
+
 // Sentiment label for a product, independent of any listing.
 export function sentiment(p, m, cfg, now = new Date()) {
   const t7 = m.t7 ?? 0, t30 = m.t30 ?? 0, src = m.src ?? 0, s7 = m.s7 ?? 0;
@@ -77,9 +94,10 @@ export function sentiment(p, m, cfg, now = new Date()) {
 const median = a => { const s = a.filter(x => x != null).sort((x, y) => x - y); if (!s.length) return null; const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 // The live ladder: every current UK listing of this exact product (price + postage), excluding the deal itself.
-export function ladderStats(entries, market, ownId) {
+// For a raw card, cond limits the ladder to listings in the same condition (plus ones that don't say).
+export function ladderStats(entries, market, ownId, cond = null) {
   if (!entries) return null;
-  const others = entries.filter(e => e.id !== ownId).map(e => e.total).sort((a, b) => a - b);
+  const others = entries.filter(e => e.id !== ownId && (!cond || !e.cond || e.cond === cond)).map(e => e.total).sort((a, b) => a - b);
   return {
     active: others.length,
     lowest: others[0] ?? null,
@@ -128,7 +146,8 @@ export function chooseMarket(pulse, sold, minSales = 4) {
 }
 
 // own: { points, change30 } from our own snapshots when there's enough history.
-export function scoreDeal({ p, m, pct, cfg, index, own, priceSuspect, certStatus, ladder, sold, hold, total, ref, now = new Date() }) {
+// condition (raw cards): { code: "NM"|"LP"|"MP"|"DMG", src: "listing"|"title"|null, factor, label }
+export function scoreDeal({ p, m, pct, cfg, index, own, priceSuspect, certStatus, ladder, sold, hold, total, ref, condition, now = new Date() }) {
   const s = sentiment(p, m, cfg, now);
   const f = [];
   const mom = clamp(0.6 * (m.t7 ?? 0) + 0.4 * (m.src ?? 0), -30, 30);
@@ -142,7 +161,21 @@ export function scoreDeal({ p, m, pct, cfg, index, own, priceSuspect, certStatus
     sc += mom * 0.4;
     if (s.bullish) { sc += 3; f.push(["g", "Rising"]); }
     if (s.bearish) { sc -= 20; f.push(["b", "Falling raw: tends to keep falling"]); }
-    if (p.vintage) { sc -= 8; f.push(["w", "Vintage raw: check condition"]); }
+    if (p.vintage && condition?.src !== "listing") { sc -= 8; f.push(["w", "Vintage raw: check condition"]); }
+    if (condition) {
+      const adj = condition.factor < 1 ? `: ${condition.priced === "pulse" ? "Pulse " + condition.code + " price" : "estimated"}, ${Math.round(condition.factor * 100)}% of NM` : "";
+      if (!condition.src) { sc -= 5; f.push(["b", `Condition not stated: priced as ${condition.label} (${Math.round(condition.factor * 100)}% of NM)`]); }
+      if (condition.code === "DMG") { sc -= 10; f.push(["b", "Damaged: no Pulse price, value is an estimate"]); }
+      else f.push([condition.code === "NM" ? "g" : "w", `Condition ${condition.label} (${condition.src === "listing" ? "seller's condition field" : condition.src === "description" ? "from description" : "from title"})${adj}`]);
+      const d = condition.desc;
+      if (d) {
+        if (condition.src === "description" && condition.stated) { sc -= 8; f.push(["b", `Seller says ${condition.stated}, description says ${condition.code}: ${d.defects.join(", ")}`]); }
+        else if (d.defects.length) f.push(["w", `Description mentions: ${d.defects.join(", ")}`]);
+        else if (d.positive.length && condition.code === "NM") { sc += 3; f.push(["g", `Description: ${d.positive.slice(0, 2).join(", ")}`]); }
+        if (d.hedge) { sc -= 5; f.push(["b", "Seller asks you to judge condition from the photos"]); }
+        if (d.offCentre) f.push(["w", "Described as off-centre"]);
+      }
+    }
   } else {
     sc += mom * 0.15;
     if (s.bearish) { sc -= 3; f.push(["w", "Slab price falling"]); }

@@ -22,7 +22,7 @@ for (const r of ref.rows) {
   const cur = byId.get(id);
   if (cur) {
     for (const k of ["name", "number", "market", "t7", "t30", "s7", "s30", "src"]) cur[col[k]] = r[col[k]];
-    for (const k of ["p10", "lp", "url"]) if (r[col[k]] != null && r[col[k]] !== "") cur[col[k]] = r[col[k]];
+    for (const k of ["p10", "lp", "url", "mp", "hp"].filter(k => col[k] != null)) if (r[col[k]] != null && r[col[k]] !== "") cur[col[k]] = r[col[k]];
     updated++;
   } else if (cat.sets[setOf(id)]) {
     cat.products.push(r); byId.set(id, r); added++;

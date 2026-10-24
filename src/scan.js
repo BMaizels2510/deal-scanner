@@ -1,7 +1,8 @@
 // One scan run: search a batch of sets on eBay, identify listings, price and score them, alert, and record history.
-import { getToken, searchListings, getItem, shippingCost, itemPrice, bigImage, certNumber } from "./ebay.js";
-import { buildIndex, matchListing } from "./match.js";
-import { config, calcDeal, exitRoutes, gradingPlay, scoreDeal, sentiment, indexOf, ladderStats, soldTrend, holdEstimate, chooseMarket } from "./score.js";
+import { getToken, searchListings, getItem, shippingCost, itemPrice, bigImage, certNumber, conditionFromItem } from "./ebay.js";
+import { buildIndex, matchListing, COND_LABEL } from "./match.js";
+import { readDescription, worstCondition } from "./condition.js";
+import { config, conditionFactor, calcDeal, exitRoutes, gradingPlay, scoreDeal, sentiment, indexOf, ladderStats, soldTrend, holdEstimate, chooseMarket } from "./score.js";
 import { laddersFor, backgroundLadders, loadSold } from "./ladder.js";
 import { verifyCert } from "./psa.js";
 import { sendDealAlert, sendText } from "./telegram.js";
@@ -30,8 +31,8 @@ export async function loadSets(db) {
 export async function loadProducts(db, setIds, sets) {
   const where = setIds ? `AND p.set_id IN (${inList(setIds.length)})` : "";
   const stmt = db.prepare(
-    `SELECT p.*, m.market, m.t7, m.t30, m.s7, m.s30, m.src, m.updated_at AS market_updated
-     FROM products p JOIN market m ON m.product_id = p.id WHERE p.active = 1 ${where}`);
+    `SELECT p.*, m.market, m.t7, m.t30, m.s7, m.s30, m.src, m.updated_at AS market_updated, cp.lp AS c_lp, cp.mp AS c_mp, cp.hp AS c_hp
+     FROM products p JOIN market m ON m.product_id = p.id LEFT JOIN cond_prices cp ON cp.product_id = p.id WHERE p.active = 1 ${where}`);
   const { results } = await (setIds ? stmt.bind(...setIds) : stmt).all();
   return results.map(p => ({ ...p, released: sets[p.set_id]?.released || null, vintage: !!sets[p.set_id]?.vintage }));
 }
@@ -124,8 +125,10 @@ export async function runScan(env, { all = false } = {}) {
       log.matched++;
       supply[m.product.id] = (supply[m.product.id] || 0) + 1;
       const post = shippingCost(i);
-      const pre = calcDeal({ price, post, market: m.product.market, accountType: "BUSINESS", feeMode: cfg.feeMode });
-      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, price, post, pre });
+      // Optimistic first pass: a raw card with no stated condition is treated as NM until the full listing is read.
+      const condF = m.product.kind === "raw" && m.cond ? conditionFactor(m.product, m.cond, cfg).factor : 1;
+      const pre = calcDeal({ price, post, market: m.product.market * condF, accountType: "BUSINESS", feeMode: cfg.feeMode });
+      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, cond: m.cond || null, price, post, pre });
     }
   }
 
@@ -159,7 +162,17 @@ export async function runScan(env, { all = false } = {}) {
     const accountType = detail?.seller?.sellerAccountType || "UNKNOWN";
     const post = shippingCost(detail) ?? c.post;
     const sold = soldTrend(soldBy[c.p.id], now);
-    const ref = chooseMarket(c.p.market, sold, num(env.EBAY_SOLD_MIN, 4));
+    const isRaw = c.p.kind === "raw";
+    const fieldCond = isRaw ? conditionFromItem(detail) : null;
+    // What the seller claims (condition field, else title), checked against what their own description admits to.
+    const stated = fieldCond || c.cond || null;
+    const desc = isRaw ? readDescription([detail?.conditionDescription, detail?.shortDescription, detail?.description].filter(Boolean).join("\n")) : null;
+    const read = worstCondition(stated, desc?.level);
+    const condSrc = !read ? null : read === stated ? (fieldCond ? "listing" : "title") : "description";
+    const condCode = isRaw ? (read || cfg.condUnknown) : null;
+    const condition = isRaw ? { code: condCode, src: condSrc, stated, desc, ...conditionFactor(c.p, condCode, cfg), label: COND_LABEL[condCode] || condCode } : null;
+    const ref0 = chooseMarket(c.p.market, sold, num(env.EBAY_SOLD_MIN, 4));
+    const ref = condition && condition.factor !== 1 ? { ...ref0, market: ref0.market * condition.factor, nm: ref0.market } : ref0;
     const calc = calcDeal({ price: c.price, post, market: ref.market, accountType, feeMode: cfg.feeMode });
     if (calc.pct < cfg.minPct) continue;
 
@@ -176,10 +189,10 @@ export async function runScan(env, { all = false } = {}) {
     }
 
     const routes = exitRoutes(c.p.kind, ref.market, calc.total, cfg);
-    const grading = c.p.kind === "raw" ? gradingPlay(c.p, psa10, calc.total, cfg) : null;
-    const ladder = ladderStats(ladders[c.p.id] || null, ref.market, c.i.itemId);
+    const grading = isRaw && condCode === "NM" ? gradingPlay(c.p, psa10, calc.total, cfg) : null;
+    const ladder = ladderStats(ladders[c.p.id] || null, ref.market, c.i.itemId, condCode);
     const hold = holdEstimate(c.p, ladder, sold);
-    const sc = scoreDeal({ p: c.p, m: { ...c.p, market: ref.market }, pct: calc.pct, cfg, index: catIndex[c.p.category], own: own[c.p.id], priceSuspect, certStatus, ladder, sold, hold, total: calc.total, ref, now });
+    const sc = scoreDeal({ p: c.p, m: { ...c.p, market: ref.market }, pct: calc.pct, cfg, index: catIndex[c.p.category], own: own[c.p.id], priceSuspect, certStatus, ladder, sold, hold, total: calc.total, ref, condition, now });
     if (grading?.suspect) sc.factors.push(["w", "PSA 10 price looks wrong: grading value skipped"]);
     else if (grading?.worth) sc.factors.push(["g", `Grading play: ${Math.round(grading.p10 * 100)}% PSA 10 rate`]);
 
@@ -203,7 +216,8 @@ export async function runScan(env, { all = false } = {}) {
     d.instant = !blocked && calc.pct >= cfg.instantPct && calc.net >= cfg.instantNet ? 1 : 0;
     let alerted = 0;
     if (d.instant) alerted = (await sendDealAlert(env, { ...d, name: c.p.name, grade: c.p.grader ? `${c.p.grader} ${c.p.grade}` : null,
-      ladder_summary: ladder && ladder.active ? `${ladder.active} other listings, ${ladder.belowMarket} under Pulse` : null })) ? 1 : 0;
+      set_name: sets[c.p.set_id]?.name || null, number: c.p.number, condition, nm_market: ref.nm ?? null,
+      ladder_summary: ladder && ladder.active ? `${ladder.active} other ${condition ? condition.code + " " : ""}listings, ${ladder.belowMarket} under market` : null })) ? 1 : 0;
 
     const cols = Object.keys(d);
     writes.push(db.prepare(
@@ -215,7 +229,7 @@ export async function runScan(env, { all = false } = {}) {
          grade_ev=excluded.grade_ev, grade_gain=excluded.grade_gain, cert_status=excluded.cert_status, instant=excluded.instant,
          alerted=MAX(deals.alerted, excluded.alerted), gone_at=NULL`)
       .bind(...cols.map(k => d[k]), alerted));
-    log.flagged.push({ id: d.item_id, name: c.p.name, grade: c.p.grader ? `${c.p.grader} ${c.p.grade}` : c.p.kind, net: Math.round(d.net), pct: +d.pct.toFixed(1), conf: d.conf, label: d.label, hold: hold.cls, holdDays: d.hold_days && Math.round(d.hold_days), ladder: ladder && `${ladder.active} listed, ${ladder.belowMarket} under Pulse`, sold: sold.count30, instant: !!d.instant, alerted: !!alerted });
+    log.flagged.push({ id: d.item_id, name: c.p.name, grade: c.p.grader ? `${c.p.grader} ${c.p.grade}` : condition ? `raw ${condition.code}${condition.src ? "" : "?"}` : c.p.kind, title: c.i.title, net: Math.round(d.net), pct: +d.pct.toFixed(1), conf: d.conf, label: d.label, hold: hold.cls, holdDays: d.hold_days && Math.round(d.hold_days), ladder: ladder && `${ladder.active} listed, ${ladder.belowMarket} under Pulse`, sold: sold.count30, instant: !!d.instant, alerted: !!alerted });
   }
 
   // Supply: new UK listings per product per day.

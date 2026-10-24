@@ -24,7 +24,7 @@ test("modern SIR: raw and PSA 10 resolve to the right product", () => {
   no(s, "Blastoise ex 200/165 PSA 9 Mint Pokemon 151", /PSA 9 not watched/);
   no(s, "Charizard ex 199/165 151 Japanese PSA 10", /not English/);
   no(s, "Charizard ex 199/165 PSA 10 CGC 10 crossover", /several grades/);
-  no(s, "Venusaur ex 198/165 SIR Pokemon 151 LP", /condition/);
+  assert.equal(m(s, "Venusaur ex 198/165 SIR Pokemon 151 LP").cond, "LP");
   no(s, "Charizard ex 199/165 PSA 10 cracked case", /cracked/);
   no(s, "Charizard ex 183/165 151 holo", /not in catalogue/);
   no(s, "Charizard ex 199/165 proxy orica", /fake/);
@@ -59,7 +59,19 @@ test("WOTC: editions, shadowless and reprints", () => {
   is(s, "Machamp 8/102 1st Edition Base Set Holo PSA 9", "card:bsu|8/102|Holo|1st Edition|PSA|9");
   no(s, "Charizard 4/102 Celebrations Classic Collection Holo", /reprint/);
   no(s, "Charizard 4/102 1st Edition Base Set PSA 9", /1st edition variant not watched/);
-  no(s, "Charizard Base Set 4/102 Holo Rare played", /condition/);
+  assert.equal(m(s, "Charizard Base Set 4/102 Holo Rare played").cond, "MP");
+  assert.equal(m(s, "Charizard 4/102 Base Set Holo Rare WOTC NM").cond, "NM");
+  assert.equal(m(s, "Charizard 4/102 Base Set Holo 120 HP").cond, null);
+  no(s, "Charizard 4/130 Base Set 2 Holo Rare WOTC", /Base Set 2|not in catalogue/);
+  no(s, "Charizard 4/130 Holo Rare WOTC 2000", /not in catalogue/);
+  no(s, "Charizard Base Set 2 Holo 4 Pokemon", /Base Set 2/);
+  assert.equal(m(s, "Charizard 4/102 Base Set Holo heavily played").cond, "HP");
+  assert.equal(m(s, "Charizard 4/102 Base Set Holo creased").cond, "DMG");
+  // Base Set 2 and Legendary Collection are watched in their own right.
+  is(["base4"], "Charizard 4/130 Base Set 2 Holo Rare WOTC", "card:base4|4/130|Holo|null|null|null");
+  is(["base4"], "Charizard Base Set 2 4/130 PSA 9 Mint", "card:base4|4/130|Holo|null|PSA|9");
+  is(["base6"], "Pikachu 86/110 Legendary Collection Reverse Holo Firework", "card:base6|86/110|Reverse Holo|null|null|null");
+  no(["base6"], "Pikachu 86/110 Legendary Collection Common", /reverse holo/);
   is(["base3"], "Articuno 2/62 Fossil 1st Edition Holo PSA 9", "card:base3|2/62|Holo|1st Edition|PSA|9");
   is(["base3"], "Articuno 2/62 Fossil Holo PSA 9 Unlimited", "card:base3|2/62|Holo|null|PSA|9");
 });
@@ -151,4 +163,16 @@ test("eBay sold record takes over from Pulse once it has enough sales", async ()
   const cfg = config({});
   const r = scoreDeal({ p: { kind: "slab" }, m: { market: 200, t7: 0, t30: 0, s7: 4, s30: 20 }, pct: 10, cfg, ref: chooseMarket(240, many), sold: many, now });
   assert.match(r.factors.map(f => f[1]).join(" | "), /Pulse above eBay sold by 17%/);
+});
+
+import { readDescription } from "../src/condition.js";
+test("description: the seller's own words lower the condition", () => {
+  const r = t => readDescription(t).level;
+  assert.equal(r("The card has a slight bow and a holo scratch as shown in the pictures. please assess the condition on the card from the picture."), "MP");
+  assert.equal(r("Light whitening on the back corners, otherwise clean."), "LP");
+  assert.equal(r("Pulled straight from the pack and sleeved immediately. Mint condition."), "NM");
+  assert.equal(r("No scratches, no whitening, no creases."), null);
+  assert.equal(r("Crease in the bottom corner."), "DMG");
+  assert.equal(r("Posted in a toploader. Returns accepted if damaged in transit."), null);
+  assert.ok(readDescription("Please judge condition from the photos").hedge);
 });

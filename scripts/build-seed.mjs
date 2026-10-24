@@ -50,24 +50,35 @@ for (const p of products) {
   ])}
   ON CONFLICT(id) DO UPDATE SET name=excluded.name, number=excluded.number, category=excluded.category, p10=COALESCE(excluded.p10, products.p10),
     lp=COALESCE(excluded.lp, products.lp), pulse_url=COALESCE(excluded.pulse_url, products.pulse_url), active=1;`);
+  if (p.kind === "raw" && col.mp != null && [r[col.lp], r[col.mp], r[col.hp]].some(v => v != null)) {
+    out.push(`INSERT OR REPLACE INTO cond_prices (product_id,lp,mp,hp,updated_at) VALUES ${row([p.id, r[col.lp] ?? null, r[col.mp] ?? null, r[col.hp] ?? null, cat.updated_at])};`);
+  }
   const m = [r[col.market], r[col.t7], r[col.t30], r[col.s7], r[col.s30], r[col.src]];
   out.push(`INSERT OR REPLACE INTO market (product_id,market,t7,t30,s7,s30,src,source,updated_at) VALUES ${row([p.id, ...m, "pulse", cat.updated_at])};`);
   out.push(`INSERT OR REPLACE INTO market_snapshots (product_id,at,market,t7,t30,s7,s30,src) VALUES ${row([p.id, cat.updated_at, ...m])};`);
 }
 
-// One eBay search per distinct search phrase (sets sharing a phrase, like the Base Set editions, share a search).
+// eBay searches, one per distinct search phrase (sets sharing a phrase, like the Base Set editions, share a search).
+// Sets that only hold Special Illustration Rares search for "SIR" or "Illustration" in the title; sealed products get their own search.
 const bySearch = {};
 for (const [id, s] of Object.entries(cat.sets)) (bySearch[s.q] ||= []).push(id);
 out.push("UPDATE searches SET active = 0;");
-for (const [phrase, setIds] of Object.entries(bySearch)) {
-  const prices = products.filter(p => setIds.includes(p.set_id)).map(p => p.r[col.market]);
-  if (!prices.length) continue;
-  const min = Math.max(8, Math.floor(Math.min(...prices) * 0.35));
-  const id = setIds.join("+");
-  out.push(`INSERT INTO searches (id,q,set_ids,min_price,active) VALUES ${row([id, `pokemon ${phrase}`, JSON.stringify(setIds), min, 1])}
+let searchCount = 0;
+const addSearch = (id, q, setIds, list) => {
+  if (!list.length) return;
+  const min = Math.max(8, Math.floor(Math.min(...list.map(p => p.r[col.market])) * 0.35));
+  out.push(`INSERT INTO searches (id,q,set_ids,min_price,active) VALUES ${row([id, q, JSON.stringify(setIds), min, 1])}
   ON CONFLICT(id) DO UPDATE SET q=excluded.q, set_ids=excluded.set_ids, min_price=excluded.min_price, active=1;`);
+  searchCount++;
+};
+for (const [phrase, setIds] of Object.entries(bySearch)) {
+  const inSets = products.filter(p => setIds.includes(p.set_id));
+  const cards = inSets.filter(p => p.kind !== "sealed"), sealed = inSets.filter(p => p.kind === "sealed");
+  const sirOnly = cards.length && cards.every(p => p.r[col.cat] === "sir");
+  addSearch(setIds.join("+"), `pokemon ${phrase}${sirOnly ? " (sir, illustration)" : ""}`, setIds, cards);
+  addSearch(setIds.join("+") + ":sealed", `pokemon ${phrase} (booster, etb, elite, bundle)`, setIds, sealed);
 }
 
 writeFileSync(new URL("../seed.sql", import.meta.url), out.join("\n") + "\n");
-console.log(`seed.sql written: ${products.length} products, ${Object.keys(cat.sets).length} sets, ${Object.keys(bySearch).length} searches, snapshot ${day}`);
+console.log(`seed.sql written: ${products.length} products, ${Object.keys(cat.sets).length} sets, ${searchCount} searches, snapshot ${day}`);
 }
