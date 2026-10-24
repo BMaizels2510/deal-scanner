@@ -176,6 +176,13 @@ footer{font-size:12px;color:var(--muted);max-width:80ch}
 .reasons button[aria-pressed="true"]{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
 .reasons input{flex:1 1 220px;min-width:0;font:inherit;font-size:12.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
 .tag.fixed{background:var(--good-soft);color:var(--good)}
+.match{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.match b{color:var(--text)}
+.match a{color:var(--accent)}
+.match .fix{color:var(--warn)}
+.correct{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}
+.correct input[list]{flex:1 1 280px;min-width:0;font:inherit;font-size:12.5px;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.correct input[type=number]{width:64px;font:inherit;font-size:12.5px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
 </style>
 </head>
 <body>
@@ -235,6 +242,7 @@ footer{font-size:12px;color:var(--muted);max-width:80ch}
   </div>
 
   <div class="list" id="list"></div>
+  <datalist id="catlist"></datalist>
 
   <details>
     <summary>How the numbers work</summary>
@@ -303,6 +311,18 @@ function depth(d){
   return html+'</div>';
 }
 
+function matchLine(d){
+  const q=d.qty>1?' × '+d.qty+' <span>('+gbp(d.pulse_market)+' each)</span>':'';
+  let h='<div class="match"><span>Pulse match: <b>'+esc(d.name)+' · '+esc(gradeLabel(d))+'</b>'+q+' · '+esc(d.set_name)+(d.number?' '+esc(d.number):'')+'</span>'+
+    (d.pulse_url?'<a href="'+esc(d.pulse_url)+'" target="_blank" rel="noopener">View on Pulse</a>':'')+'</div>';
+  const c=d.correction;
+  if(c){
+    const diff=c.market!=null?c.market-d.total:null;
+    h+='<div class="match"><span class="fix">You corrected it to: <b>'+esc(c.name)+'</b>'+(c.qty>1?' × '+c.qty:'')+(c.market!=null?' · Pulse '+gbp(c.market)+' → '+(diff>=0?gbp0(diff)+' under':gbp0(-diff)+' over')+' at this price':'')+'</span>'+
+      (c.matchesNow?'<span class="tag fixed">Today’s rules now get this right</span>':'')+'</div>';
+  }
+  return h;
+}
 function reasonText(r){ const [k,dt]=String(r||"").split(":"); return (DATA.reasons[k]||k)+(dt?" ("+dt+")":""); }
 function reviewBar(d){
   const v=d.review&&d.review.verdict, open=v==="bad";
@@ -320,11 +340,17 @@ function reviewBar(d){
     const pick=list.find(x=>x[0]===rk&&x[2]);
     if(pick) h+='<div class="reasons" role="group" aria-label="Detail"><span class="q">'+(rk==="condition"?"Actual condition:":rk==="graded"||rk==="wrong_grader"?"Graded by:":rk==="wrong_grade"?"Actual grade:":"Which?")+'</span>'+
       pick[2].map(o=>'<button data-reason="'+rk+':'+esc(o)+'" data-id="'+id+'" aria-pressed="'+(rd===o)+'">'+esc(o)+'</button>').join("")+'</div>';
+    const cur=d.correction?(d.correction.product_id==="none"?"Not something the catalogue watches":(DATA.catalogue.find(x=>x[0]===d.correction.product_id)||[])[1]||""):"";
+    h+='<div class="correct"><span class="q">Correct it to:</span><input list="catlist" placeholder="Type a card or product, e.g. Phantasmal Flames Half Booster Box" data-fix="'+id+'" value="'+esc(cur)+'" aria-label="Correct product">'+
+      '<label class="q">qty <input type="number" min="1" max="99" value="'+(d.correction?d.correction.qty:d.qty||1)+'" data-fixqty="'+id+'" aria-label="Quantity"></label>'+
+      '<button class="btn small" data-fixsave="'+id+'">Save correction</button></div>';
     h+='<div class="reasons"><input type="text" placeholder="Note (optional): what was it really?'+(rk==="graded"||rk==="wrong_grade"?" e.g. ACE 9":"")+'" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
   }
   if(v==="fake") h+='<div class="reasons"><input type="text" placeholder="What gave it away? (optional)" data-note="'+id+'" value="'+esc(d.review.note||"")+'" aria-label="Note"></div>';
   return h+'</div>';
 }
+
+document.getElementById("catlist").innerHTML=(DATA.catalogue||[]).map(x=>'<option value="'+esc(x[1])+'">').join("")+'<option value="Not something the catalogue watches">';
 
 function accuracy(){
   const a=DATA.accuracy||{}; const el=document.getElementById("acc");
@@ -361,8 +387,8 @@ function card(d){
   return '<article class="deal '+(d.instant?"flag ":"")+"st-"+d.status+(d.gone_hours!=null?" is-gone":"")+'">'+
     '<a class="photo" href="'+esc(d.url)+'" target="_blank" rel="noopener" aria-label="Open listing on eBay">'+photo+'</a>'+
     '<div class="main">'+
-      '<div class="titlerow"><span class="pill '+esc(d.label).replace(/ /g,"-")+'">'+esc(d.label)+'</span><a class="title" href="'+esc(d.url)+'" target="_blank" rel="noopener">'+esc(d.name)+' · '+esc(gradeLabel(d))+'</a></div>'+
-      '<div class="raw">"'+esc(d.title)+'"</div>'+
+      '<div class="titlerow"><span class="pill '+esc(d.label).replace(/ /g,"-")+'">'+esc(d.label)+'</span><a class="title" href="'+esc(d.url)+'" target="_blank" rel="noopener">'+esc(d.title)+'</a></div>'+
+      matchLine(d)+
       '<div class="tags">'+(d.instant?'<span class="tag instant">Instant alert</span>':'')+st+gone+
         '<span class="tag">'+esc(CAT[d.category]||d.category)+' · '+esc(d.set_name)+(d.number?' '+esc(d.number):'')+'</span>'+
         '<span class="tag">'+esc(d.format)+'</span>'+
@@ -496,6 +522,24 @@ document.getElementById("list").addEventListener("change",async e=>{
   try{ await sendReview(d,{verdict:d.review.verdict,reason:d.review.reason,note:inp.value}); inp.style.borderColor="var(--good)"; }catch(err){ inp.style.borderColor="var(--bad)"; }
 });
 document.getElementById("list").addEventListener("click",async e=>{
+  const fb=e.target.closest("button[data-fixsave]");
+  if(fb){
+    const d=DATA.deals.find(x=>x.item_id===fb.dataset.fixsave); if(!d) return;
+    const label=document.querySelector('input[data-fix="'+CSS.escape(d.item_id)+'"]').value.trim();
+    const qty=parseInt(document.querySelector('input[data-fixqty="'+CSS.escape(d.item_id)+'"]').value,10)||1;
+    const hit=label==="Not something the catalogue watches"?["none",label,null]:(DATA.catalogue||[]).find(x=>x[1]===label);
+    if(!hit){ fb.textContent="Pick a product from the list"; return; }
+    fb.disabled=true; touched.add(d.item_id);
+    try{
+      const r=await fetch("/api/deals/"+encodeURIComponent(d.item_id)+"/correct",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({product_id:hit[0],qty})});
+      if(!r.ok) throw new Error(await r.text());
+      if(!d.review) await sendReview(d,{verdict:"bad",reason:"wrong_card"});
+      d.correction={product_id:hit[0],qty,name:hit[0]==="none"?label:label.split(" · ")[0],market:hit[2]!=null?hit[2]*qty:null,
+        matchesNow:d.recheck&&d.recheck.now==="different"?d.recheck.id===hit[0]&&d.recheck.qty===qty:d.recheck&&d.recheck.now==="rejected"&&hit[0]==="none"};
+      render();
+    }catch(err){ fb.disabled=false; fb.textContent="Couldn't save, try again"; }
+    return;
+  }
   const rb=e.target.closest("button[data-rv],button[data-reason]");
   if(rb){
     const d=DATA.deals.find(x=>x.item_id===rb.dataset.id); if(!d) return;

@@ -44,6 +44,12 @@ eBay also tells you how hard the resale will be:
 - **Time to sell:** listings queued at or below Pulse, divided by sales per day (Pulse, plus our sold record). Under a week is a quick flip, over a month a long hold, and the score moves accordingly. Each deal also shows resale profit per day held.
 - **Sales stalling:** this week's sales well under the usual pace, with the price not rising, costs 10 points. A cheap listing on a card nobody is buying is a high-risk buy.
 
+## Reviewing and correcting matches
+
+Each deal on the report shows the **listing title exactly as the seller wrote it** (the link), then **Pulse match:** what it was priced against. Mark it ✅ Right, ❌ Wrong (with a reason that depends on raw / graded / sealed, plus a detail like the real condition or grading company) or 🚩 Fake. Under Wrong, **Correct it to** lets you pick what it really was from the catalogue (with a quantity, or "not something the catalogue watches").
+
+Corrections are remembered: when a listing with the same title appears again (relisted, or a seller reusing a title), the scanner uses your answer instead of guessing, and says so on the deal. Everything is exported by **Download review (CSV)** for turning patterns into rules.
+
 ## Hunting on demand from Telegram
 
 Message the bot a category or a name and it checks every current UK listing of those cards right now, cheapest first, then sends the best under-market finds: the top 5 as photo cards, the rest as a list.

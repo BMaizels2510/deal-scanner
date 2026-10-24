@@ -18,6 +18,9 @@ const L = (id, title, price, post, o = {}) => ({
 });
 
 const DATA = {
+  "me05:sealed": [
+    L(9801, "Pokemon Pitch Black Half Booster Box Unsealed x 18 packs", 72, 3, {}),
+  ],
   "base3:sealed": [
     L(9701, "Pokemon Fossil 1st Edition Booster Pack Sealed WOTC", 360, 3.5, { bo: true, desc: "Factory sealed 1st edition Fossil pack. Weighs 21.45g on digital scales. Unsearched." }),
     L(9702, "Pokemon Fossil Booster Pack Sealed 20.62g", 205, 3.5, {}),

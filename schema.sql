@@ -156,3 +156,11 @@ CREATE TABLE IF NOT EXISTS reviews (
   note TEXT,
   at TEXT NOT NULL
 );
+
+-- Your corrections: what a wrongly-matched listing really was ("none" = not something the catalogue watches).
+CREATE TABLE IF NOT EXISTS corrections (
+  item_id TEXT PRIMARY KEY,
+  product_id TEXT NOT NULL,
+  qty INTEGER NOT NULL DEFAULT 1,
+  at TEXT NOT NULL
+);

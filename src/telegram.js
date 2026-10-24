@@ -26,11 +26,10 @@ export async function sendDealAlert(env, d) {
     ? `${src} ${c.code} ${gbp(d.market)}${c.priced === "estimate" ? " (estimate)" : ""} · NM ${gbp0(d.nm_market)}`
     : d.market_source === "eBay sold" ? `eBay sold ${gbp(d.market)} (Pulse ${gbp0(d.pulse_market)})` : `Pulse ${gbp(d.market)}`;
   const lines = [
-    `<b>${esc(d.label)}: ${esc(d.name)}${d.grade ? " · " + esc(d.grade) : ""}</b>`,
-    [d.set_name, d.number].filter(Boolean).map(esc).join(" · "),
-    `<i>${esc(String(d.title || "").slice(0, 100))}</i>`,
+    `<b>${esc(d.label)}</b> · <b>${esc(String(d.title || "").slice(0, 110))}</b>`,
+    `Pulse match: ${esc(d.name)}${d.grade ? " · " + esc(d.grade) : ""}${d.qty > 1 ? ` × ${d.qty}` : ""} · ${[d.set_name, d.number].filter(Boolean).map(esc).join(" ")}`,
     condLine,
-    d.qty > 1 ? `📦 ${esc(d.qty_note)} × ${gbp(d.each)}` : null,
+    d.qty > 1 ? `📦 ${esc(d.qty_note)} at ${gbp(d.each)} each` : null,
     d.pack ? (d.pack.judge ? `⚖️ <b>${d.pack.judge.weight}g: ${esc(d.pack.judge.cls)}</b> (${esc(d.pack.judge.why)})` : d.pack.heavy ? "⚖️ Seller says heavy, no weight given" : d.pack.unweighed ? "⚖️ Unweighed" : "⚖️ No weight given") : null,
     `${gbp(d.price)}${d.post != null ? ` + ${gbp(d.post)} post` : " (check postage)"} = <b>${gbp(d.total)}</b>`,
     `${mkt} → <b>${gbp0(d.net)} under (${d.pct.toFixed(1)}%)</b>`,
@@ -59,9 +58,8 @@ export async function sendHuntCard(env, h, sets) {
   const p = h.p;
   const grade = p.grader ? ` · ${p.grader} ${p.grade}` : p.kind === "raw" ? ` · ${h.condCode}${h.condStated ? "" : " (condition not in title, priced as " + h.condCode + ")"}` : "";
   const lines = [
-    `<b>🔎 ${esc(p.name)}${esc(grade)}</b>`,
-    [sets[p.set_id]?.name, p.number].filter(Boolean).map(esc).join(" · "),
-    `<i>${esc(String(h.i.title).slice(0, 100))}</i>`,
+    `<b>🔎 ${esc(String(h.i.title).slice(0, 110))}</b>`,
+    `Pulse match: ${esc(p.name)}${esc(grade)} · ${[sets[p.set_id]?.name, p.number].filter(Boolean).map(esc).join(" ")}`,
     `${gbp(h.price)}${h.post != null ? ` + ${gbp(h.post)} post` : " (check postage)"} = <b>${gbp(h.calc.total)}</b>`,
     `Pulse ${p.kind === "raw" ? h.condCode + " " : ""}${gbp(h.market)} → <b>${gbp0(h.calc.net)} under (${h.calc.pct.toFixed(1)}%)</b>`,
     `${p.s30 ?? 0} sales in 30 days · ${esc(h.s.label === "Neutral" ? "Opportunity" : h.s.label)}`,

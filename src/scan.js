@@ -1,6 +1,6 @@
 // One scan run: search a batch of sets on eBay, identify listings, price and score them, alert, and record history.
 import { getToken, searchListings, getItem, shippingCost, itemPrice, bigImage, certNumber, conditionFromItem } from "./ebay.js";
-import { buildIndex, matchListing, COND_LABEL } from "./match.js";
+import { buildIndex, matchListing, parseCondition, COND_LABEL } from "./match.js";
 import { readDescription, readSealedDescription, worstCondition } from "./condition.js";
 import { packWeight, sellerClaims, judgeWeight, hasWeightData } from "./packs.js";
 import { config, conditionFactor, calcDeal, exitRoutes, gradingPlay, scoreDeal, sentiment, indexOf, ladderStats, soldTrend, holdEstimate, chooseMarket } from "./score.js";
@@ -82,6 +82,20 @@ export async function runScan(env, { all = false } = {}) {
   const sets = await loadSets(db);
   const products = await loadProducts(db, null, sets);
   const index = buildIndex(products, sets);
+  // Your corrections, remembered: a listing with the same title (relisted, or a seller's reused title) is what you said it was.
+  const normTitle = t => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const { results: learned } = await db.prepare("SELECT d.title, c.product_id, c.qty FROM corrections c JOIN deals d ON d.item_id = c.item_id").all().catch(() => ({ results: [] }));
+  const memory = new Map(learned.map(r => [normTitle(r.title), r]));
+  const productById = Object.fromEntries(products.map(p => [p.id, p]));
+  const recall = title => {
+    const mem = memory.get(normTitle(title));
+    if (!mem) return null;
+    if (mem.product_id === "none") return { ok: false, reason: "you corrected this title before: not watched" };
+    const p = productById[mem.product_id];
+    if (!p) return null;
+    return { ok: true, product: p, qty: mem.qty, grade: p.grader ? { g: p.grader.toLowerCase(), n: p.grade } : null, cond: p.kind === "raw" ? parseCondition(title) : null,
+      note: mem.qty > 1 ? `You corrected this title before: ${mem.qty} × ${p.name}` : null, learned: true };
+  };
   const byCard = {};
   for (const p of products) if (p.card_key) (byCard[p.card_key] ||= []).push(p);
 
@@ -121,7 +135,7 @@ export async function runScan(env, { all = false } = {}) {
     for (const { i, key } of fresh) {
       const price = itemPrice(i);
       if (price == null) { log.rejected.push({ search: s.id, title: i.title, reason: "No single price (multi-variation listing)" }); continue; }
-      const m = matchListing(i.title, setIds, index);
+      const m = recall(i.title) || matchListing(i.title, setIds, index);
       if (!m.ok) { log.rejected.push({ search: s.id, title: i.title, reason: m.reason }); continue; }
       log.matched++;
       supply[m.product.id] = (supply[m.product.id] || 0) + 1;
@@ -130,7 +144,7 @@ export async function runScan(env, { all = false } = {}) {
       const condF = m.product.kind === "raw" && m.cond ? conditionFactor(m.product, m.cond, cfg).factor : 1;
       const qty = m.qty || 1;   // an unsealed box is priced as qty loose packs
       const pre = calcDeal({ price, post, market: m.product.market * condF * qty, accountType: "BUSINESS", feeMode: cfg.feeMode });
-      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, cond: m.cond || null, qty, note: m.note || null, price, post, pre });
+      if (pre.pct >= cfg.minPct) candidates.push({ i, key, search: s.id, p: m.product, grade: m.grade, cond: m.cond || null, qty, note: m.note || null, learned: !!m.learned, price, post, pre });
     }
   }
 
@@ -162,7 +176,7 @@ export async function runScan(env, { all = false } = {}) {
     const detail = await getItem(env, token, c.i.itemId);
     if (detail?.gone) continue;
     const descText = [detail?.conditionDescription, detail?.shortDescription, detail?.description].filter(Boolean).join("\n");
-    const sealedNote = c.p.kind === "sealed" && !(c.qty > 1) ? readSealedDescription(descText, c.p.name, { title: c.i.title, itemCondition: detail?.condition || c.i.condition }) : null;
+    const sealedNote = c.p.kind === "sealed" && !(c.qty > 1) && !c.learned ? readSealedDescription(descText, c.p.name, { title: c.i.title, itemCondition: detail?.condition || c.i.condition }) : null;
     if (sealedNote?.wrongItem) { log.rejected.push({ search: c.search, title: c.i.title, reason: sealedNote.wrongItem }); continue; }
     const accountType = detail?.seller?.sellerAccountType || "UNKNOWN";
     const post = shippingCost(detail) ?? c.post;
@@ -217,6 +231,7 @@ export async function runScan(env, { all = false } = {}) {
       if (claims.unsearched) sc.factors.push(["g", "Described as unsearched"]);
     }
     if (c.qty > 1) sc.factors.unshift(["w", `${c.note} × £${ref.each.toFixed(2)} each (Pulse)`]);
+    if (c.learned) sc.factors.unshift(["g", "Matched from your earlier correction of this title"]);
     if (sealedNote?.damage.length) { sc.conf = Math.max(0, sc.conf - 10); sc.factors.push(["b", `Box damage mentioned: "${sealedNote.damage[0]}"`]); }
     if (grading?.suspect) sc.factors.push(["w", "PSA 10 price looks wrong: grading value skipped"]);
     else if (grading?.worth) sc.factors.push(["g", `Grading play: ${Math.round(grading.p10 * 100)}% PSA 10 rate`]);

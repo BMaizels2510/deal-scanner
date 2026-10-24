@@ -17,7 +17,7 @@ import { config, ladderStats, soldTrend, holdEstimate } from "./score.js";
 import { refreshLadder, loadLadders, loadSold } from "./ladder.js";
 import { buildIndex } from "./match.js";
 import { getToken } from "./ebay.js";
-import { reviewData, saveReview, exportCsv, REVIEW_REASONS, REASONS_BY_KIND } from "./review.js";
+import { reviewData, saveReview, saveCorrection, exportCsv, REVIEW_REASONS, REASONS_BY_KIND } from "./review.js";
 import { runHunt } from "./hunt.js";
 import { setupTelegram, sendText } from "./telegram.js";
 
@@ -94,12 +94,14 @@ async function reportData(env, day) {
     deals: deals.map(d => ({
       ...d, factors: JSON.parse(d.factors || "[]"), instant: !!d.instant, fee_included: !!d.fee_included,
       ladder: d.ladder ? JSON.parse(d.ladder) : null, sold: d.sold ? JSON.parse(d.sold) : null,
-      supply: supply[d.product_id] || null, review: d.review, recheck: d.recheck,
+      supply: supply[d.product_id] || null, review: d.review, recheck: d.recheck, qty: d.qty, correction: d.correction || null,
       gone_hours: d.gone_at ? (Date.parse(d.gone_at) - Date.parse(d.found_at)) / 3600000 : null,
     })),
     market: Object.entries(idx).map(([c, v]) => ({ category: c, t7: v.t7, t30: v.t30, n: counts[c], prev30: prev[c] ?? null, speedH: median(speed[c] || []) })),
     watch: watchList(products, cfg, 6).map(p => ({ name: p.name, grade: p.grader ? `${p.grader} ${p.grade}` : (p.kind === "sealed" ? "Sealed" : "Raw"), market: p.market, src: p.src, t7: p.t7, s7: p.s7, url: p.pulse_url })),
     rejects, accuracy, reasons: REVIEW_REASONS, reasonsByKind: REASONS_BY_KIND,
+    // the catalogue, for "correct it to": [id, label, Pulse price]
+    catalogue: products.map(p => [p.id, `${p.name} · ${p.kind === "slab" ? `${p.grader} ${p.grade}` : p.kind === "sealed" ? "Sealed" : "Raw"} · ${sets[p.set_id]?.name || p.set_id}${p.number ? " " + p.number : ""}`, p.market]),
     lastScan: meta.last_scan || null,
     lastError: meta.last_error && (!meta.last_scan || meta.last_error.slice(0, 24) >= meta.last_scan.slice(0, 24)) ? meta.last_error : null,
     marketUpdated: mk?.u || null,
@@ -163,6 +165,12 @@ export default {
     if (rv && req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       try { await saveReview(env.DB, decodeURIComponent(rv[1]), body); return json({ ok: true }); }
+      catch (e) { return json({ error: String(e.message || e) }, 400); }
+    }
+    const cx = path.match(/^\/api\/deals\/(.+)\/correct$/);
+    if (cx && req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
+      try { await saveCorrection(env.DB, decodeURIComponent(cx[1]), body); return json({ ok: true }); }
       catch (e) { return json({ error: String(e.message || e) }, 400); }
     }
     if (path === "/api/review/export") {

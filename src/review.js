@@ -50,31 +50,40 @@ export const reasonLabel = r => { if (!r) return ""; const [k, d] = String(r).sp
 
 const inList = n => Array.from({ length: n }, () => "?").join(",");
 
-async function loadReviews(db, ids) {
+async function loadBy(db, table, ids) {
   const out = {};
   for (let i = 0; i < ids.length; i += 90) {
     const chunk = ids.slice(i, i + 90);
-    const { results } = await db.prepare(`SELECT * FROM reviews WHERE item_id IN (${inList(chunk.length)})`).bind(...chunk).all();
+    const { results } = await db.prepare(`SELECT * FROM ${table} WHERE item_id IN (${inList(chunk.length)})`).bind(...chunk).all();
     for (const r of results) out[r.item_id] = r;
   }
   return out;
 }
 
 // What today's rules make of a deal's listing title: "same", "rejected" (with reason) or "different" (another product).
+export const dealQty = d => (d.kind === "sealed" || /^sealed:/.test(d.product_id || "")) && d.pulse_market > 0 ? Math.max(1, Math.round(d.market / d.pulse_market)) : 1;
 export function recheck(index, d) {
   const r = matchListing(d.title, [d.set_id], index);
   if (!r.ok) return { now: "rejected", reason: r.reason };
-  if (r.product.id !== d.product_id || (r.qty || 1) > 1) return { now: "different", product: r.product.name + (r.product.grader ? ` ${r.product.grader} ${r.product.grade}` : "") + (r.qty > 1 ? ` × ${r.qty}` : "") };
+  if (r.product.id !== d.product_id || (r.qty || 1) !== dealQty(d)) return { now: "different", id: r.product.id, qty: r.qty || 1, product: r.product.name + (r.product.grader ? ` ${r.product.grader} ${r.product.grade}` : "") + (r.qty > 1 ? ` × ${r.qty}` : "") };
   return { now: "same" };
 }
 
 // Attach review + recheck to one day's deals, and summarise accuracy across every day.
 export async function reviewData(db, deals, products, sets) {
   const index = buildIndex(products, sets);
-  const reviews = await loadReviews(db, deals.map(d => d.item_id));
+  const reviews = await loadBy(db, "reviews", deals.map(d => d.item_id));
+  const fixes = await loadBy(db, "corrections", deals.map(d => d.item_id));
   for (const d of deals) {
     d.review = reviews[d.item_id] || (d.status === "bad" ? { verdict: "bad", reason: null } : null);
     d.recheck = recheck(index, d);
+    d.qty = dealQty(d);
+    const c = fixes[d.item_id];
+    if (c) {
+      const p = c.product_id === "none" ? null : products.find(x => x.id === c.product_id);
+      d.correction = { product_id: c.product_id, qty: c.qty, name: p ? p.name + (p.grader ? ` ${p.grader} ${p.grade}` : "") : "Not something the catalogue watches",
+        market: p ? p.market * c.qty : null, matchesNow: d.recheck.now === "different" ? d.recheck.id === c.product_id && d.recheck.qty === c.qty : d.recheck.now === "rejected" && c.product_id === "none" };
+    }
   }
   const { results: all } = await db.prepare(
     `SELECT d.item_id, d.title, d.product_id, d.status, d.instant, p.set_id, r.verdict, r.reason
@@ -91,6 +100,21 @@ export async function reviewData(db, deals, products, sets) {
     }
   }
   return s;
+}
+
+// "It was really this": the right catalogue product (or "none") and how many of it.
+export async function saveCorrection(db, itemId, { product_id, qty }) {
+  if (!product_id) { await db.prepare("DELETE FROM corrections WHERE item_id = ?").bind(itemId).run(); return true; }
+  if (product_id !== "none" && !(await db.prepare("SELECT 1 FROM products WHERE id = ?").bind(product_id).first())) throw new Error("unknown product");
+  const n = Math.max(1, Math.min(99, parseInt(qty, 10) || 1));
+  await db.batch([
+    db.prepare(`INSERT INTO corrections (item_id, product_id, qty, at) VALUES (?, ?, ?, ?)
+      ON CONFLICT(item_id) DO UPDATE SET product_id = excluded.product_id, qty = excluded.qty, at = excluded.at`).bind(itemId, product_id, n, new Date().toISOString()),
+    // a correction means the match was wrong: record that if you haven't already said why
+    db.prepare(`INSERT INTO reviews (item_id, verdict, reason, note, at) VALUES (?, 'bad', 'wrong_card', NULL, ?) ON CONFLICT(item_id) DO NOTHING`).bind(itemId, new Date().toISOString()),
+    db.prepare("UPDATE deals SET status = 'bad' WHERE item_id = ? AND status != 'bought'").bind(itemId),
+  ]);
+  return true;
 }
 
 export async function saveReview(db, itemId, { verdict, reason, note }) {
@@ -120,14 +144,18 @@ export async function exportCsv(db, products, sets) {
   const index = buildIndex(products, sets);
   const { results } = await db.prepare(
     `SELECT d.day, d.found_at, d.item_id, d.title, d.product_id, p.name, p.set_id, p.grader, p.grade, d.price, d.total, d.market, d.net, d.pct, d.conf, d.label, d.instant, d.url,
-            COALESCE(r.verdict, CASE WHEN d.status = 'bad' THEN 'bad' END) AS verdict, r.reason, r.note
-     FROM deals d JOIN products p ON p.id = d.product_id LEFT JOIN reviews r ON r.item_id = d.item_id ORDER BY d.found_at`).all();
-  const cols = ["day", "found_at", "verdict", "reason", "note", "title", "matched_as", "now", "now_detail", "price", "total", "market", "net", "pct", "conf", "label", "instant", "url"];
+            COALESCE(r.verdict, CASE WHEN d.status = 'bad' THEN 'bad' END) AS verdict, r.reason, r.note, d.pulse_market, p.kind,
+            c.product_id AS fix_id, c.qty AS fix_qty, cp.name AS fix_name, cp.grader AS fix_grader, cp.grade AS fix_grade
+     FROM deals d JOIN products p ON p.id = d.product_id LEFT JOIN reviews r ON r.item_id = d.item_id
+       LEFT JOIN corrections c ON c.item_id = d.item_id LEFT JOIN products cp ON cp.id = c.product_id ORDER BY d.found_at`).all();
+  const cols = ["day", "found_at", "verdict", "reason", "note", "title", "matched_as", "corrected_to", "corrected_id", "now", "now_detail", "price", "total", "market", "net", "pct", "conf", "label", "instant", "url"];
   const q = v => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const lines = [cols.join(",")];
   for (const d of results) {
     const rc = recheck(index, d);
-    const row = { ...d, matched_as: d.name + (d.grader ? ` ${d.grader} ${d.grade}` : ""), reason: reasonLabel(d.reason), now: rc.now, now_detail: rc.reason || rc.product || "",
+    const q = dealQty(d);
+    const row = { ...d, matched_as: d.name + (d.grader ? ` ${d.grader} ${d.grade}` : "") + (q > 1 ? ` x ${q}` : ""),
+      corrected_to: d.fix_id ? (d.fix_id === "none" ? "not watched" : d.fix_name + (d.fix_grader ? ` ${d.fix_grader} ${d.fix_grade}` : "") + (d.fix_qty > 1 ? ` x ${d.fix_qty}` : "")) : "", corrected_id: d.fix_id || "", reason: reasonLabel(d.reason), now: rc.now, now_detail: rc.reason || rc.product || "",
       net: d.net?.toFixed(2), pct: d.pct?.toFixed(1), market: d.market?.toFixed(2), total: d.total?.toFixed(2) };
     lines.push(cols.map(c => q(row[c])).join(","));
   }
