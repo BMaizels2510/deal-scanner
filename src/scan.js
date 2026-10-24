@@ -1,7 +1,8 @@
 // One scan run: search a batch of sets on eBay, identify listings, price and score them, alert, and record history.
 import { getToken, searchListings, getItem, shippingCost, itemPrice, bigImage, certNumber, conditionFromItem } from "./ebay.js";
 import { buildIndex, matchListing, COND_LABEL } from "./match.js";
-import { readDescription, worstCondition } from "./condition.js";
+import { readDescription, readSealedDescription, worstCondition } from "./condition.js";
+import { packWeight, sellerClaims, judgeWeight, hasWeightData } from "./packs.js";
 import { config, conditionFactor, calcDeal, exitRoutes, gradingPlay, scoreDeal, sentiment, indexOf, ladderStats, soldTrend, holdEstimate, chooseMarket } from "./score.js";
 import { laddersFor, backgroundLadders, loadSold } from "./ladder.js";
 import { verifyCert } from "./psa.js";
@@ -159,6 +160,9 @@ export async function runScan(env, { all = false } = {}) {
   for (const c of shortlist) {
     const detail = await getItem(env, token, c.i.itemId);
     if (detail?.gone) continue;
+    const descText = [detail?.conditionDescription, detail?.shortDescription, detail?.description].filter(Boolean).join("\n");
+    const sealedNote = c.p.kind === "sealed" ? readSealedDescription(descText, c.p.name, { title: c.i.title, itemCondition: detail?.condition || c.i.condition }) : null;
+    if (sealedNote?.wrongItem) { log.rejected.push({ search: c.search, title: c.i.title, reason: sealedNote.wrongItem }); continue; }
     const accountType = detail?.seller?.sellerAccountType || "UNKNOWN";
     const post = shippingCost(detail) ?? c.post;
     const sold = soldTrend(soldBy[c.p.id], now);
@@ -166,7 +170,7 @@ export async function runScan(env, { all = false } = {}) {
     const fieldCond = isRaw ? conditionFromItem(detail) : null;
     // What the seller claims (condition field, else title), checked against what their own description admits to.
     const stated = fieldCond || c.cond || null;
-    const desc = isRaw ? readDescription([detail?.conditionDescription, detail?.shortDescription, detail?.description].filter(Boolean).join("\n")) : null;
+    const desc = isRaw ? readDescription(descText) : null;
     const read = worstCondition(stated, desc?.level);
     const condSrc = !read ? null : read === stated ? (fieldCond ? "listing" : "title") : "description";
     const condCode = isRaw ? (read || cfg.condUnknown) : null;
@@ -193,6 +197,24 @@ export async function runScan(env, { all = false } = {}) {
     const ladder = ladderStats(ladders[c.p.id] || null, ref.market, c.i.itemId, condCode);
     const hold = holdEstimate(c.p, ladder, sold);
     const sc = scoreDeal({ p: c.p, m: { ...c.p, market: ref.market }, pct: calc.pct, cfg, index: catIndex[c.p.category], own: own[c.p.id], priceSuspect, certStatus, ladder, sold, hold, total: calc.total, ref, condition, now });
+    // Loose vintage packs: weigh the seller's stated weight against the community pack-weight database.
+    let pack = null;
+    if (/booster pack/i.test(c.p.name) && hasWeightData(c.p.set_id)) {
+      const text = `${c.i.title}\n${descText}`;
+      const claims = sellerClaims(text);
+      const j = judgeWeight(c.p.set_id, packWeight(text));
+      pack = { ...claims, judge: j };
+      const add = (pts, tone, msg) => { sc.conf = Math.max(0, Math.min(100, sc.conf + pts)); sc.factors.push([tone, msg]); };
+      if (j) {
+        const map = { "Heavy": [10, "g"], "Leans heavy": [5, "g"], "Can't tell": [0, "w"], "Leans light": [-10, "b"], "Light": [-15, "b"] };
+        const [pts, tone] = map[j.cls];
+        add(pts, tone, `${j.weight}g: ${j.cls.toLowerCase()} (${j.why})${/light/i.test(j.cls) ? ". Likely no holo: worth less than the average pack price" : ""}`);
+      } else if (claims.heavy) add(-3, "w", "Seller says heavy but gives no weight");
+      else if (claims.unweighed) add(3, "g", "Unweighed pack");
+      else add(0, "w", "No pack weight given: ask the seller");
+      if (claims.unsearched) sc.factors.push(["g", "Described as unsearched"]);
+    }
+    if (sealedNote?.damage.length) { sc.conf = Math.max(0, sc.conf - 10); sc.factors.push(["b", `Box damage mentioned: "${sealedNote.damage[0]}"`]); }
     if (grading?.suspect) sc.factors.push(["w", "PSA 10 price looks wrong: grading value skipped"]);
     else if (grading?.worth) sc.factors.push(["g", `Grading play: ${Math.round(grading.p10 * 100)}% PSA 10 rate`]);
 
@@ -212,11 +234,11 @@ export async function runScan(env, { all = false } = {}) {
       format: (c.i.buyingOptions || []).includes("BEST_OFFER") ? "Buy It Now · Best Offer" : "Buy It Now",
       image: bigImage(c.i.image?.imageUrl || detail?.image?.imageUrl), url: c.i.itemWebUrl, listed_at: c.i.itemCreationDate || null,
     };
-    const blocked = ["Check cert", "Check price"].includes(sc.label) || sc.conf < 35;
+    const blocked = ["Check cert", "Check price"].includes(sc.label) || sc.conf < 35 || /light/i.test(pack?.judge?.cls || "");
     d.instant = !blocked && calc.pct >= cfg.instantPct && calc.net >= cfg.instantNet ? 1 : 0;
     let alerted = 0;
     if (d.instant) alerted = (await sendDealAlert(env, { ...d, name: c.p.name, grade: c.p.grader ? `${c.p.grader} ${c.p.grade}` : null,
-      set_name: sets[c.p.set_id]?.name || null, number: c.p.number, condition, nm_market: ref.nm ?? null,
+      set_name: sets[c.p.set_id]?.name || null, number: c.p.number, condition, nm_market: ref.nm ?? null, pack,
       ladder_summary: ladder && ladder.active ? `${ladder.active} other ${condition ? condition.code + " " : ""}listings, ${ladder.belowMarket} under market` : null })) ? 1 : 0;
 
     const cols = Object.keys(d);

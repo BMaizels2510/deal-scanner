@@ -30,6 +30,7 @@ export async function sendDealAlert(env, d) {
     [d.set_name, d.number].filter(Boolean).map(esc).join(" · "),
     `<i>${esc(String(d.title || "").slice(0, 100))}</i>`,
     condLine,
+    d.pack ? (d.pack.judge ? `⚖️ <b>${d.pack.judge.weight}g: ${esc(d.pack.judge.cls)}</b> (${esc(d.pack.judge.why)})` : d.pack.heavy ? "⚖️ Seller says heavy, no weight given" : d.pack.unweighed ? "⚖️ Unweighed" : "⚖️ No weight given") : null,
     `${gbp(d.price)}${d.post != null ? ` + ${gbp(d.post)} post` : " (check postage)"} = <b>${gbp(d.total)}</b>`,
     `${mkt} → <b>${gbp0(d.net)} under (${d.pct.toFixed(1)}%)</b>`,
     `Resell on eBay: ${gbp0(d.resale_net)} · To Mania: ${gbp0(d.mania_net)}`,

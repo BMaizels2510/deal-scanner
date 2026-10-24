@@ -176,3 +176,60 @@ test("description: the seller's own words lower the condition", () => {
   assert.equal(r("Posted in a toploader. Returns accepted if damaged in transit."), null);
   assert.ok(readDescription("Please judge condition from the photos").hedge);
 });
+
+test("sealed: half booster boxes are their own product", () => {
+  const s = ["me05"];
+  is(s, "Pokemon Mega Evolution Pitch Black Half Booster Box 18 Booster Packs Sealed", "sealed:me05|Pitch Black Half Booster Boxes");
+  is(s, "Pokemon Pitch Black Booster Box 36 Packs Sealed", "sealed:me05|Pitch Black Booster Box");
+  is(s, "Pitch Black Booster Box Sealed Pokemon TCG", "sealed:me05|Pitch Black Booster Box");
+  no(s, "Pitch Black Booster Box 24 packs sealed", /24 packs/);
+  no(s, "Pitch Black Booster Box contents only no promo", /partial/);
+});
+import { readSealedDescription } from "../src/condition.js";
+test("sealed: description reveals a half box, opened or damaged box", () => {
+  assert.match(readSealedDescription("Half booster box, 18 packs, factory sealed", "Pitch Black Booster Box").wrongItem, /half/);
+  assert.equal(readSealedDescription("Half booster box, 18 packs", "Pitch Black Half Booster Boxes", { title: "Pitch Black half booster box sealed" }).wrongItem, null);
+  assert.match(readSealedDescription("Box has been opened but packs are sealed", "X Booster Box").wrongItem, /opened/);
+  assert.equal(readSealedDescription("Never opened. Shipped in a box, returns if damaged in transit", "X Booster Box", { title: "X booster box sealed" }).wrongItem, null);
+  assert.equal(readSealedDescription("Small dent on the corner of the box", "X Booster Box").damage.length, 1);
+  assert.equal(readSealedDescription("No dents or tears", "X Booster Box").damage.length, 0);
+});
+
+test("vintage packs: single sealed packs by edition, not boxes or modern look-alikes", () => {
+  is(["base3"], "Pokemon Fossil Booster Pack 1st Edition Sealed 21.3g", "sealed:base3|Fossil Booster Pack (1st Edition)");
+  is(["base3"], "Fossil Booster Pack Sealed WOTC 1999 weighed 21.05g", "sealed:base3|Fossil Booster Pack (Unlimited Edition)");
+  is(["tr"], "Team Rocket 1st Edition Booster Pack sealed unsearched", "sealed:tr|Team Rocket Booster Pack (1st Edition)");
+  no(["tr"], "Team Rocket Booster Pack Unlimited Sealed", /not 1st Edition/);
+  no(["tr"], "Pokemon Destined Rivals Team Rocket's booster pack sealed", /not watched|not in catalogue/);
+  no(["base3"], "Fossil empty booster pack wrapper", /empty/);
+  no(["base3"], "Fossil booster pack art only", /opened|empty/);
+  no(["base3"], "3x Fossil booster packs sealed", /multiple|several/);
+  is(["bsu", "bs1s"], "Pokemon Base Set Booster Pack Sealed Charizard art", "sealed:bsu|Base Set Booster Pack");
+  no(["bsu", "bs1s"], "Pokemon Base Set 2 Booster Pack Sealed", /not watched|ambiguous/);
+  is(["base4"], "Pokemon Base Set 2 Booster Pack Sealed", "sealed:base4|Base Set 2 Booster Pack");
+});
+import { packWeight, judgeWeight } from "../src/packs.js";
+import { readSealedDescription as rsd } from "../src/condition.js";
+test("vintage packs: weight against the pack-weight database, and proof it's sealed", () => {
+  assert.equal(judgeWeight("tr", packWeight("Team Rocket Booster Pack 21.6g")).cls, "Heavy");
+  assert.equal(judgeWeight("bsu", packWeight("base set pack weighs 20.6 grams")).cls, "Light");
+  assert.equal(packWeight("no weight here"), null);
+  assert.match(rsd("Great pack", "Fossil Booster Pack", { title: "Fossil booster pack" }).wrongItem, /not described as sealed/);
+  assert.equal(rsd("Factory sealed, weighed 21.2g", "Fossil Booster Pack", { title: "Fossil booster pack" }).wrongItem, null);
+  assert.equal(rsd("", "Pitch Black ETB", { title: "Pitch Black ETB", itemCondition: "New" }).wrongItem, null);
+  assert.match(rsd("Box has been weighed", "Pitch Black Booster Box", { title: "Pitch Black booster box sealed" }).wrongItem, /weighed/);
+});
+
+test("sealed: empty boxes and 'no packs included' are never deals", () => {
+  for (const t of [
+    "Pokemon Journey Together ETB Booster Box - NO BOOSTER PACKS INCLUDED",
+    "Journey Together Elite Trainer Box packs not included",
+    "Journey Together ETB without booster packs",
+    "Journey Together ETB excluding packs",
+    "Journey Together Elite Trainer Box no packs",
+    "Journey Together ETB empty box",
+  ]) no(["sv9"], t, /packs not included|empty/);
+  is(["sv9"], "Journey Together Elite Trainer Box Sealed", "sealed:sv9|Journey Together Elite Trainer Box");
+  assert.match(rsd("Box and sleeves only, booster packs have been removed", "Journey Together Elite Trainer Box", { title: "Journey Together ETB sealed" }).wrongItem, /removed/);
+  assert.equal(rsd("Brand new sealed, nothing removed", "Journey Together Elite Trainer Box", { title: "Journey Together ETB" }).wrongItem, null);
+});

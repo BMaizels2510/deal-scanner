@@ -83,3 +83,30 @@ export function readDescription(text) {
   const level = worstCondition(outright, fromPoints) || (positive.length ? "NM" : null);
   return { level, points, defects: [...new Set(defects)], positive: [...new Set(positive)], hedge, offCentre };
 }
+
+// Sealed: does the seller's description reveal a different product (a half box, opened, resealed) or box damage?
+const S_HALF = /\bhalf (booster )?(box|display)\b|\b18 (sealed )?(booster )?packs\b/;
+const S_OPENED = /\b(opened|unsealed|re-?sealed|resealed|weighed|searched|empty|no shrink|without shrink|shrink ?wrap (is )?(missing|removed))\b/;
+const S_NOT_OPENED = /\b(un-?searched|not (been )?searched|never searched|un-?weighed|not (been )?weighed|never weighed|un-?opened|never opened|not opened|not empty)\b/g;
+const S_NO_PACKS = /\bno (booster )?(packs?|boosters?|cards?)( are)? (included|inside)\b|\b(booster )?(packs?|boosters?|cards?) (are |were |have been |has been )?(not included|removed|missing|taken out)\b|\bwithout (the |any )?(booster )?(packs?|boosters?)\b|\b(empty|box only|just the box|contents? removed)\b/;
+const S_EVIDENCE = /\b(sealed|unopened|brand new|bnib|bnisb|shrink ?wrapped|still wrapped|untouched)\b/;
+const S_DAMAGE = /\b(dent(s|ed)?|crush(ed)?|squash(ed)?|tear|torn|ripped|split|damaged|damage|scuff(s|ed)?|crease[ds]?|hole)\b/;
+// title / itemCondition (eBay's condition, e.g. "New") count as evidence that it's sealed.
+export function readSealedDescription(text, productName, { title = "", itemCondition = "" } = {}) {
+  const plain = htmlToText(text).slice(0, 20000).toLowerCase().replace(S_NOT_OPENED, " ");
+  const isPack = /booster pack/i.test(productName || "");
+  const sentences = plain.split(/[.!?\n•|;]+/).map(s => s.replace(/\s+/g, " ").trim()).filter(Boolean).filter(s => !BOILERPLATE.test(s));
+  const isHalf = /half/i.test(productName || "");
+  let wrongItem = null; const damage = [];
+  for (const s of sentences) {
+    const neg = m => m && NEGATE.test(s.slice(Math.max(0, m.index - 40), m.index));
+    const h = s.match(S_HALF); if (h && !isHalf && !neg(h)) wrongItem = "description says half booster box";
+    const np = s.match(S_NO_PACKS); if (np && !neg(np)) wrongItem = wrongItem || `description says ${np[0]}`;
+    const o = s.match(S_OPENED); if (o && !neg(o) && !(isPack && o[0] === "weighed")) wrongItem = wrongItem || `description says ${o[0]}`;
+    const d = s.match(S_DAMAGE); if (d && !neg(d)) damage.push(s.slice(Math.max(0, d.index - 25), d.index + d[0].length + 25).trim());
+  }
+  // Sealed product listings must say they're sealed / unopened somewhere (title, description or eBay's "New" condition).
+  const t = String(title).toLowerCase().replace(S_NOT_OPENED, " ");
+  if (!wrongItem && !S_EVIDENCE.test(t) && !S_EVIDENCE.test(plain) && !/^new\b/i.test(itemCondition || "")) wrongItem = "not described as sealed or unopened";
+  return { wrongItem, damage: [...new Set(damage)].slice(0, 2) };
+}

@@ -50,6 +50,18 @@ The scanner reads the condition from the seller's **Card Condition** field on th
 
 Fallbacks when Pulse has no price for a condition: `COND_LP` 0.7, `COND_MP` 0.5, `COND_HP` 0.35 of NM; `COND_DMG_OF_HP` 0.6; `COND_UNKNOWN` "LP". Set any of them in `wrangler.toml` `[vars]` to change them.
 
+## Sealed products and vintage packs
+
+Sealed listings must say they're **sealed / unopened / brand new** somewhere (title, description, or eBay's "New" condition), and anything empty, opened, resealed, searched or "pack art" is turned away. Booster boxes, half boxes (18 packs) and bundles are told apart by pack count, and a description that reveals a half box or an opened box drops the listing. Box damage in the description costs 10 confidence.
+
+**Single vintage packs** (WOTC and early EX era, 1st Edition and Unlimited tracked separately) are judged by weight. If the title or description states a weight (e.g. "21.6g"), it's compared with the community pack-weight database in `data/pack-weights.csv` (Wisewailmer's sheet; rebuild with `node scripts/build-weights.mjs` after replacing it):
+- **Heavy:** heavier than every recorded no-holo pack of that set: holo likely, +10 confidence
+- **Leans heavy / Leans light:** 75%+ of recorded packs within 0.05g did / didn't have a holo: ±5 / −10
+- **Can't tell:** inside the overlap where holo and non-holo packs weigh the same
+- **Light:** lighter than every recorded holo pack: holo unlikely, −15 confidence and never an instant alert, because Pulse's price is for an average pack
+
+The weight bands overlap a lot, so most weights land in "can't tell"; only the tails are informative. It's a guide, not a guarantee.
+
 ## The data gets better over time
 
 Every catalogue refresh adds a dated snapshot of every product's price and sales pace. The deals table records what you bought and what was a bad match. Together they allow:

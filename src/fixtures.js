@@ -18,6 +18,11 @@ const L = (id, title, price, post, o = {}) => ({
 });
 
 const DATA = {
+  "base3:sealed": [
+    L(9701, "Pokemon Fossil 1st Edition Booster Pack Sealed WOTC", 360, 3.5, { bo: true, desc: "Factory sealed 1st edition Fossil pack. Weighs 21.45g on digital scales. Unsearched." }),
+    L(9702, "Pokemon Fossil Booster Pack Sealed 20.62g", 205, 3.5, {}),
+    L(9703, "Fossil booster pack empty wrapper", 25, 2, {}),
+  ],
   "sv3pt5": [
     L(1001, "Charizard ex 199/165 SIR PSA 10 Pokemon 151 Gem Mint", 1049, 9.99, { bo: true, cert: "12345671" }),
     L(1002, "Pokemon 151 Charizard ex 199/165 Special Illustration Rare NM pack fresh", 215, 1.5, { bo: true, fb: 230 }),

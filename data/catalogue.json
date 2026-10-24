@@ -24,7 +24,7 @@
     },
     "sealed": {
       "name": "Sealed",
-      "rule": "Selected sealed products"
+      "rule": "Sealed: ETBs, booster boxes, half boxes (18 packs), bundles, and single vintage booster packs (WOTC and EX era, judged by weight)"
     }
   },
   "sets": {
@@ -191,19 +191,23 @@
     },
     "ex2": {
       "name": "EX Sandstorm",
-      "q": "ex sandstorm"
+      "q": "ex sandstorm",
+      "sq": "sandstorm"
     },
     "ex3": {
       "name": "EX Dragon",
-      "q": "ex dragon holo"
+      "q": "ex dragon holo",
+      "sq": "ex dragon"
     },
     "ex4": {
       "name": "EX Team Magma vs Team Aqua",
-      "q": "team magma aqua ex"
+      "q": "team magma aqua ex",
+      "sq": "magma aqua"
     },
     "ex5": {
       "name": "EX Hidden Legends",
-      "q": "ex hidden legends"
+      "q": "ex hidden legends",
+      "sq": "hidden legends"
     },
     "ex6": {
       "name": "EX FireRed & LeafGreen",
@@ -223,11 +227,13 @@
     },
     "ex12": {
       "name": "EX Legend Maker",
-      "q": "ex legend maker"
+      "q": "ex legend maker",
+      "sq": "legend maker"
     },
     "ex16": {
       "name": "EX Power Keepers",
-      "q": "ex power keepers"
+      "q": "ex power keepers",
+      "sq": "power keepers"
     },
     "base5": {
       "name": "EX Team Rocket Returns",
@@ -236,42 +242,50 @@
     "bsu": {
       "name": "Base Set Unlimited",
       "q": "base set holo",
-      "vintage": true
+      "vintage": true,
+      "sq": "base set"
     },
     "bs1s": {
       "name": "Base Set (1st Edition)",
       "q": "base set holo",
-      "vintage": true
+      "vintage": true,
+      "sq": "base set"
     },
     "base2": {
       "name": "Jungle",
       "q": "jungle holo",
-      "vintage": true
+      "vintage": true,
+      "sq": "jungle"
     },
     "base3": {
       "name": "Fossil",
       "q": "fossil holo",
-      "vintage": true
+      "vintage": true,
+      "sq": "fossil"
     },
     "tr": {
       "name": "Team Rocket",
       "q": "team rocket holo wotc",
-      "vintage": true
+      "vintage": true,
+      "sq": "team rocket"
     },
     "gym1": {
       "name": "Gym Heroes",
       "q": "gym heroes",
-      "vintage": true
+      "vintage": true,
+      "sq": "gym heroes"
     },
     "gym2": {
       "name": "Gym Challenge",
       "q": "gym challenge",
-      "vintage": true
+      "vintage": true,
+      "sq": "gym challenge"
     },
     "neo2": {
       "name": "Neo Discovery",
       "q": "neo discovery",
-      "vintage": true
+      "vintage": true,
+      "sq": "neo discovery"
     },
     "neo4": {
       "name": "Neo Destiny",
@@ -281,12 +295,19 @@
     "base4": {
       "name": "Base Set 2",
       "q": "base set 2",
-      "vintage": true
+      "vintage": true,
+      "sq": "base set 2"
     },
     "base6": {
       "name": "Legendary Collection",
       "q": "legendary collection",
       "vintage": true
+    },
+    "neo1": {
+      "name": "Neo Genesis",
+      "q": "neo genesis",
+      "vintage": true,
+      "sq": "neo genesis"
     }
   },
   "columns": [
@@ -609,6 +630,28 @@
     ["card:base6|55/110|Reverse Holo|null|PSA|9","Nidorina","55/110",956.76,0,84.6,0,2,null,"wotc",null,null,"nidorina-55-110-reverse-holo-psa-9",null,null],
     ["card:base6|56/110|Reverse Holo|null|PSA|9","Nidorino","56/110",1222.1,0,163.8,0,2,null,"wotc",null,null,"nidorino-56-110-reverse-holo-psa-9",null,null],
     ["card:base6|63/110|Reverse Holo|null|PSA|9","Seadra","63/110",906.84,0,17.7,0,2,null,"wotc",null,null,"seadra-63-110-reverse-holo-psa-9",null,null],
-    ["card:base6|81/110|Reverse Holo|null|PSA|9","Mankey","81/110",1344.77,-19.4,169.5,0,2,0,"wotc",null,null,"mankey-81-110-reverse-holo-psa-9",null,null]
+    ["card:base6|81/110|Reverse Holo|null|PSA|9","Mankey","81/110",1344.77,-19.4,169.5,0,2,0,"wotc",null,null,"mankey-81-110-reverse-holo-psa-9",null,null],
+    ["sealed:me05|Pitch Black Half Booster Boxes","Pitch Black Half Booster Box",null,90.17,-1.1,6.6,25,87,23.2,"sealed",null,null,"pitch-black-half-booster-boxes",null,null],
+    ["sealed:me04|Chaos Rising Half Booster Box","Chaos Rising Half Booster Box",null,96.52,10.6,9.4,18,59,30.8,"sealed",null,null,"chaos-rising-half-booster-box",null,null],
+    ["sealed:me02|Phantasmal Flames Half Booster Box","Phantasmal Flames Half Booster Box",null,153.02,1.1,-1.7,3,24,-46.4,"sealed",null,null,"phantasmal-flames-half-booster-box",null,null],
+    ["sealed:m1|Mega Evolution Half Booster Box","Mega Evolution Half Booster Box",null,139.76,9.9,6.4,6,24,7.1,"sealed",null,null,"mega-evolution-half-booster-box",null,null],
+    ["sealed:base3|Fossil Booster Pack (1st Edition)","Fossil Booster Pack (1st Edition)",null,483.72,8.6,15.2,10,28,53.1,"sealed",null,null,"fossil-booster-pack-1st-edition",null,null],
+    ["sealed:base2|Jungle Booster Pack (Unlimited Edition)","Jungle Booster Pack",null,284.43,3,29.9,1,24,-82.1,"sealed",null,null,"jungle-booster-pack-unlimited-edition",null,null],
+    ["sealed:base3|Fossil Booster Pack (Unlimited Edition)","Fossil Booster Pack",null,291.66,-3.9,29.7,1,19,-77.4,"sealed",null,null,"fossil-booster-pack-unlimited-edition",null,null],
+    ["sealed:bsu|Base Set Booster Pack","Base Set Booster Pack",null,506.93,-30,-10.1,7,18,66.7,"sealed",null,null,"base-set-booster-pack",null,null],
+    ["sealed:base4|Base Set 2 Booster Pack","Base Set 2 Booster Pack",null,357.98,9.1,11.7,3,5,157.1,"sealed",null,null,"base-set-2-booster-pack",null,null],
+    ["sealed:gym2|Gym Challenge Booster Pack (1st Edition)","Gym Challenge Booster Pack (1st Edition)",null,570,28.7,33.9,2,4,114.3,"sealed",null,null,"gym-challenge-booster-pack-1st-edition",null,null],
+    ["sealed:gym2|Gym Challenge Booster Pack (Unlimited Edition)","Gym Challenge Booster Pack",null,276.67,19.8,15.8,2,4,114.3,"sealed",null,null,"gym-challenge-booster-pack-unlimited-edition",null,null],
+    ["sealed:neo1|Neo Genesis Booster Pack (1st Edition)","Neo Genesis Booster Pack (1st Edition)",null,762.37,0,20.7,0,3,null,"sealed",null,null,"neo-genesis-booster-pack-1st-edition",null,null],
+    ["sealed:neo1|Neo Genesis Booster Pack (Unlimited Edition)","Neo Genesis Booster Pack",null,483.43,0,18.2,0,3,null,"sealed",null,null,"neo-genesis-booster-pack-unlimited-edition",null,null],
+    ["sealed:neo2|Neo Discovery Booster Pack (Unlimited Edition)","Neo Discovery Booster Pack",null,444.85,11,39.2,1,3,42.9,"sealed",null,null,"neo-discovery-booster-pack-unlimited-edition",null,null],
+    ["sealed:gym1|Gym Heroes Booster Pack (1st Edition)","Gym Heroes Booster Pack (1st Edition)",null,480.73,0,31.7,0,2,null,"sealed",null,null,"gym-heroes-booster-pack-1st-edition",null,null],
+    ["sealed:tr|Team Rocket Booster Pack (1st Edition)","Team Rocket Booster Pack (1st Edition)",null,550,0,9.9,0,2,null,"sealed",null,null,"team-rocket-booster-pack-1st-edition",null,null],
+    ["sealed:ex12|Legend Maker Booster Pack","Legend Maker Booster Pack",null,779.35,0,-4.5,0,2,null,"sealed",null,null,"legend-maker-booster-pack",null,null],
+    ["sealed:ex16|Power Keepers Booster Pack","Power Keepers Booster Pack",null,603.4,0,-11.6,0,2,null,"sealed",null,null,"power-keepers-booster-pack",null,null],
+    ["sealed:ex2|Sandstorm Booster Pack","Sandstorm Booster Pack",null,420.82,0,0.8,0,1,null,"sealed",null,null,"sandstorm-booster-pack",null,null],
+    ["sealed:ex3|EX Dragon Booster Pack","EX Dragon Booster Pack",null,572.8,0,-5,0,1,null,"sealed",null,null,"ex-dragon-booster-pack",null,null],
+    ["sealed:ex4|Team Magma vs Team Aqua Booster Pack","Team Magma vs Team Aqua Booster Pack",null,532,0,37.7,0,1,null,"sealed",null,null,"team-magma-vs-team-aqua-booster-pack",null,null],
+    ["sealed:ex5|Hidden Legends Booster Pack","Hidden Legends Booster Pack",null,462.3,0,18.4,0,1,null,"sealed",null,null,"hidden-legends-booster-pack",null,null]
   ]
 }

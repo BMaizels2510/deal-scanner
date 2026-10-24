@@ -4,7 +4,8 @@
 const GLOBAL_REJECT = [
   [/\b(proxy|replica|fake|custom|orica|reprint|unofficial|fan ?made|novelty|art ?card|metal card)\b/, "fake/custom"],
   [/\b(digital|code ?cards?|ptcgo|tcg ?live|online code)\b/, "code card/digital"],
-  [/\b(empty|box only|no (cards?|packs?)|display only|case only|tin only|slab only|label only|wrapper only)\b/, "empty/packaging only"],
+  [/\b(empty|box only|display only|case only|tin only|slab only|label only|wrapper only)\b/, "empty/packaging only"],
+  [/\bno (booster )?(cards?|packs?|boosters?)\b|\b(booster )?(packs?|cards?|boosters?) (are |were |have been |has been )?(not included|removed|missing|taken out)\b|\bwithout (the |any )?(booster )?(packs?|boosters?|cards?)\b|\b(excluding|minus|exc\.?|excl\.?) (the )?(booster )?(packs?|boosters?)\b|\bcontents? (removed|not included)\b/, "packs not included"],
   [/read (the )?desc/, "read description"],
   [/\b(choose|pick (your|a|from)|you pick|select your|multi ?listing|lot of|job ?lot|joblot|bundle of|collection of|binder)\b/, "multi-item listing"],
   [/\b(sticker|poster|sleeves?|playmat|plush|figure|deck box|coin|pin badge|jumbo|oversized)\b/, "accessory/jumbo"],
@@ -30,7 +31,13 @@ export function parseCondition(text) {
   for (const [code, re] of COND_RULES) if (re.test(t)) return code;
   return null;
 }
-const OPENED = /\b(opened|unsealed|re-?sealed|no shrink|without shrink|loose packs?|weighed|searched|empty)\b/;
+const OPENED = /\b(opened|unsealed|re-?sealed|no shrink|without shrink|searched|empty|pack art|art only)\b/;
+// Reassurances that contain the words above but mean the opposite.
+const NOT_OPENED = /\b(un-?searched|not (been )?searched|never searched|un-?weighed|not (been )?weighed|never weighed|un-?opened|never opened|not opened)\b/g;
+// Vintage sealed searches also turn up modern products that share words ("Team Rocket's", "Team Rocket Returns").
+const MODERN_WORDS = /\b(destined rivals|scarlet|violet|sword|shield|mega evolution|returns|glory of team rocket|rockets|prismatic|151)\b/;
+const SEALED_EXCLUDE = { tr: /\breturns\b/, ex3: /\bfrontiers\b/ };
+const IS_1ST = /\b(1st|first)\s*ed(ition|\.)?\b|\b1st\b/;
 const MULTIPLES = /\b\d+\s*x\b|\bx\s*\d+\b|\b(two|three|four|2|3|4) (etbs|boxes|bundles|cards)\b/;
 const VINTAGE_REPRINT = /\b(celebrations?|classic collection|25th|evolutions|reprint|xy12)\b/;
 // Base Set 2 and Legendary Collection reuse Base Set artwork: a title naming them is never an original Base Set card.
@@ -154,24 +161,60 @@ function variantProblem(t, p) {
   return null;
 }
 
-function matchSealed(t, candidates) {
-  if (OPENED.test(t)) return { ok: false, reason: "opened/resealed" };
-  if (MULTIPLES.test(t)) return { ok: false, reason: "multiple units" };
+// Pack counts that define a product: a full booster box is 36 packs, a half box 18, a booster bundle 6.
+const PACKS_IN_TITLE = /\b(\d{1,2})\s*(?:x\s*)?(?:sealed\s*)?(?:booster\s*)?packs?\b/;
+const PARTIAL = /\b(partial|contents only|no promos?|without (the )?promos?|missing|incomplete)\b/;
+const HALF = /\bhalf\b|\bmini (booster )?box\b/;
+
+function matchSealed(t0, candidates) {
+  const t = t0.replace(NOT_OPENED, " ");
+  if (OPENED.test(t)) return { ok: false, reason: "opened/resealed/empty" };
+  if (PARTIAL.test(t)) return { ok: false, reason: "partial / contents only" };
+  const pm = t.match(PACKS_IN_TITLE);
+  const packs = pm ? Number(pm[1]) : null;
+  if (MULTIPLES.test(pm ? t.replace(pm[0], " ") : t)) return { ok: false, reason: "multiple units" };
   const tPC = /pokemon cent(er|re)|\bpc\b/.test(t);
   const tETB = /elite trainer box|\betb\b/.test(t);
   const tBundle = /booster bundle/.test(t);
-  const tBox = /booster box|booster display|36 (booster )?packs/.test(t);
+  const tHalf = HALF.test(t) || packs === 18;
+  const tBox = /booster box|booster display|36 (booster )?packs/.test(t) || tHalf;
+  const tPack = /\bbooster pack\b|\bpack\b|\bbooster\b/.test(t) && !/\b(box|display|bundle|etb|elite trainer|case|blister|theme deck|tin|packs)\b/.test(t);
+  const t1st = IS_1ST.test(t);
+  const weighed = /\bweighed\b/.test(t), loose = /\bloose\b/.test(t);
+  let packReason = null;
   const hits = candidates.filter(p => {
     const n = normalise(p.name);
     if (!p._setTokens.every(w => t.includes(w))) return false;
+    if (p._vintage && MODERN_WORDS.test(t)) return false;
+    if (SEALED_EXCLUDE[p.set_id]?.test(t)) return false;
+    if (BASE_SETS.has(p.set_id) && LATER_BASE.test(t)) return false;
+    if (IS_1ST.test(n) !== t1st) { packReason = t1st ? "1st Edition, not watched" : "not 1st Edition"; return false; }
+    if (/\bshadowless\b/.test(t) && !n.includes("shadowless")) { packReason = "shadowless variant not watched"; return false; }
+    if (n.includes("booster pack")) {
+      if (!tPack) { packReason = /\bpacks\b/.test(t) ? "several packs, not a single pack" : "not a single booster pack"; return false; }
+      return true;   // weighed / loose is normal for single packs
+    }
+    if (weighed) { packReason = "weighed (packs likely picked over)"; return false; }
+    if (loose) { packReason = "loose packs, not the sealed product"; return false; }
     if (n.includes("elite trainer box")) return tETB && tPC === n.includes("pokemon center") && !/\bcase\b/.test(t);
-    if (n.includes("booster bundle")) return tBundle && !/display|\bcase\b/.test(t);
-    if (n.includes("booster box")) return tBox && !/\bcase\b/.test(t);
+    if (n.includes("booster bundle")) {
+      if (packs && packs !== 6) { packReason = `${packs} packs, not a booster bundle`; return false; }
+      return tBundle && !/display|\bcase\b/.test(t);
+    }
+    if (n.includes("half booster box")) {
+      if (packs && packs !== 18) { packReason = `${packs} packs, not a half booster box`; return false; }
+      return tHalf && !/\bcase\b/.test(t);
+    }
+    if (n.includes("booster box")) {
+      if (tHalf) { packReason = "half booster box (18 packs), not a full box"; return false; }
+      if (packs && packs !== 36) { packReason = `${packs} packs, not a full booster box`; return false; }
+      return tBox && !/\bcase\b/.test(t);
+    }
     return false;
   });
   if (hits.length === 1) return { ok: true, product: hits[0] };
   if (hits.length > 1) return { ok: false, reason: "ambiguous sealed product" };
-  return { ok: false, reason: "sealed product not watched" };
+  return { ok: false, reason: packReason || "sealed product not watched" };
 }
 
 const SEALED_WORDS = /\b(elite trainer box|etb|booster box|booster bundle|booster display|blister|tin|premium collection|collection box|build and battle)\b/;
@@ -186,7 +229,8 @@ export function matchListing(rawTitle, setIds, index) {
   const sealedPool = pool.filter(p => p.kind === "sealed");
   const cardPool = pool.filter(p => p.kind !== "sealed");
 
-  if (SEALED_WORDS.test(t)) {
+  const packTitle = /\bbooster packs?\b|\bpacks?\b(?! fresh)/.test(t) && !/\d{1,3}\s*\/\s*\d{1,3}/.test(t);
+  if (SEALED_WORDS.test(t) || (packTitle && sealedPool.some(p => /booster pack/i.test(p.name)))) {
     if (DAMAGE.test(t)) return { ok: false, reason: "damaged" };
     if (!sealedPool.length) return { ok: false, reason: "sealed, not watched in this set" };
     return matchSealed(t, sealedPool);

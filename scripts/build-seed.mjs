@@ -76,7 +76,9 @@ for (const [phrase, setIds] of Object.entries(bySearch)) {
   const cards = inSets.filter(p => p.kind !== "sealed"), sealed = inSets.filter(p => p.kind === "sealed");
   const sirOnly = cards.length && cards.every(p => p.r[col.cat] === "sir");
   addSearch(setIds.join("+"), `pokemon ${phrase}${sirOnly ? " (sir, illustration)" : ""}`, setIds, cards);
-  addSearch(setIds.join("+") + ":sealed", `pokemon ${phrase} (booster, etb, elite, bundle)`, setIds, sealed);
+  const sq = setIds.map(id => cat.sets[id].sq).find(Boolean) || phrase;   // sealed phrase, e.g. "fossil" rather than "fossil holo"
+  const packs = sealed.some(p => /booster pack/i.test(p.r[col.name]));
+  addSearch(setIds.join("+") + ":sealed", `pokemon ${sq} (booster, ${packs ? "pack, " : ""}etb, elite, bundle)`, setIds, sealed);
 }
 
 writeFileSync(new URL("../seed.sql", import.meta.url), out.join("\n") + "\n");
