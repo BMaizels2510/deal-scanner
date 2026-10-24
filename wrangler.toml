@@ -7,6 +7,7 @@
 binding = "DB"
 database_name = "deal-scanner"
 database_id = "2e7fb03e-8d7f-409c-b58b-b71751398afb"
+
 [observability]
 enabled = true
 
